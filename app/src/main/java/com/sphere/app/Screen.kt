@@ -6,6 +6,8 @@ import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Subscriptions
 import androidx.compose.ui.graphics.vector.ImageVector
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 sealed class Screen(val route: String, val title: String, val icon: ImageVector?) {
     object Splash : Screen("splash", "Splash", null)
@@ -15,10 +17,10 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector?
     object Profile : Screen("profile", "You", Icons.Default.AccountCircle)
     object Player : Screen("player/{videoUrl}/{title}/{channel}", "Player", null) {
         fun createRoute(videoUrl: String, title: String, channel: String): String {
-            // Simple encoding to handle special characters in URL if needed, 
-            // but for now assuming clean urls or basic encoding usage at call site if complex.
-            // Better to use URLEncoder at call site.
-            return "player/$videoUrl/$title/$channel"
+            val encodedVideoUrl = URLEncoder.encode(videoUrl, StandardCharsets.UTF_8.toString())
+            val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
+            val encodedChannel = URLEncoder.encode(channel, StandardCharsets.UTF_8.toString())
+            return "player/$encodedVideoUrl/$encodedTitle/$encodedChannel"
         }
     }
 }
