@@ -27,7 +27,7 @@ fun VideoPlayer(
 
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build().apply {
-            playWhenReady = true
+            playWhenReady = false
         }
     }
 
