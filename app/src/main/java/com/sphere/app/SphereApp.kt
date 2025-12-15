@@ -10,15 +10,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.sphere.app.ui.screens.ExploreScreen
 import com.sphere.app.ui.screens.HomeScreen
+import com.sphere.app.ui.screens.PlayerScreen
 import com.sphere.app.ui.screens.ProfileScreen
 import com.sphere.app.ui.screens.SplashScreen
 import com.sphere.app.ui.screens.SubscriptionScreen
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 
 @Composable
 fun SphereApp() {
@@ -33,8 +38,8 @@ fun SphereApp() {
         Screen.Profile
     )
 
-    // Hide BottomBar on Splash Screen
-    val showBottomBar = currentRoute != Screen.Splash.route
+    // Hide BottomBar on Splash Screen and Player Screen
+    val showBottomBar = currentRoute != Screen.Splash.route && currentRoute?.startsWith("player") == false
 
     Scaffold(
         bottomBar = {
@@ -66,16 +71,44 @@ fun SphereApp() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.Splash.route) {
-                SplashScreen(onSplashFinished = {
+                com.sphere.app.ui.screens.SplashScreen(onSplashFinished = {
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.Splash.route) { inclusive = true }
                     }
                 })
             }
-            composable(Screen.Home.route) { HomeScreen() }
-            composable(Screen.Explore.route) { ExploreScreen() }
-            composable(Screen.Subscription.route) { SubscriptionScreen() }
-            composable(Screen.Profile.route) { ProfileScreen() }
+            composable(Screen.Home.route) {
+                com.sphere.app.ui.screens.HomeScreen(
+                    onVideoClick = { videoUrl: String, title: String, channel: String ->
+                        navController.navigate(Screen.Player.createRoute(videoUrl, title, channel))
+                    }
+                )
+            }
+            composable(Screen.Explore.route) { com.sphere.app.ui.screens.ExploreScreen() }
+            composable(Screen.Subscription.route) { com.sphere.app.ui.screens.SubscriptionScreen() }
+            composable(Screen.Profile.route) { com.sphere.app.ui.screens.ProfileScreen() }
+            composable(
+                route = Screen.Player.route,
+                arguments = listOf(
+                    navArgument("videoUrl") { type = NavType.StringType },
+                    navArgument("title") { type = NavType.StringType },
+                    navArgument("channel") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val videoUrl = backStackEntry.arguments?.getString("videoUrl") ?: ""
+                val title = backStackEntry.arguments?.getString("title") ?: ""
+                val channel = backStackEntry.arguments?.getString("channel") ?: ""
+
+                // Decode arguments if strictly necessary, but compose often handles basic string args well.
+                // However, URLs usually need decoding if they were encoded.
+                val decodedUrl = try { URLDecoder.decode(videoUrl, StandardCharsets.UTF_8.toString()) } catch (_: Exception) { videoUrl }
+
+                com.sphere.app.ui.screens.PlayerScreen(
+                    videoUrl = decodedUrl,
+                    title = title,
+                    channelName = channel
+                )
+            }
         }
     }
 }
