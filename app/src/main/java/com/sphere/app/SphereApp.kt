@@ -16,12 +16,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.sphere.app.ui.screens.ExploreScreen
-import com.sphere.app.ui.screens.HomeScreen
-import com.sphere.app.ui.screens.PlayerScreen
-import com.sphere.app.ui.screens.ProfileScreen
-import com.sphere.app.ui.screens.SplashScreen
-import com.sphere.app.ui.screens.SubscriptionScreen
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
