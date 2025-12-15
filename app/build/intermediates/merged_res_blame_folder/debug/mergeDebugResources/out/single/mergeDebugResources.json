@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "C:\\Users\\BARSHAN\\.gradle\\daemon\\9.0-milestone-1\\com.sphere.app-debug-55:\\xml_backup_rules.xml.flat",
+        "source": "C:\\Users\\BARSHAN\\.gradle\\daemon\\9.0-milestone-1\\com.sphere.app-main-57:\\xml\\backup_rules.xml"
+    },
+    {
+        "merged": "C:\\Users\\BARSHAN\\.gradle\\daemon\\9.0-milestone-1\\com.sphere.app-debug-55:\\xml_data_extraction_rules.xml.flat",
+        "source": "C:\\Users\\BARSHAN\\.gradle\\daemon\\9.0-milestone-1\\com.sphere.app-main-57:\\xml\\data_extraction_rules.xml"
+    },
+    {
+        "merged": "com.sphere.app-debug-55:/mipmap-xxxhdpi_ic_launcher.jpg.flat",
+        "source": "com.sphere.app-main-57:/mipmap-xxxhdpi/ic_launcher.jpg"
+    }
+]
