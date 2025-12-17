@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -45,7 +46,10 @@ import java.nio.charset.StandardCharsets
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(onVideoClick: (String, String, String) -> Unit) {
+fun HomeScreen(
+    onVideoClick: (String, String, String) -> Unit,
+    onProfileClick: () -> Unit = {}
+) {
     val sampleVideoUrl = "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
 
     Scaffold(
@@ -83,7 +87,15 @@ fun HomeScreen(onVideoClick: (String, String, String) -> Unit) {
                                 )
                             }
                         },
-
+                        actions = {
+                            IconButton(onClick = onProfileClick) {
+                                Icon(
+                                    imageVector = Icons.Default.AccountCircle,
+                                    contentDescription = "You",
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
+                        },
                         colors =
                                 TopAppBarDefaults.topAppBarColors(
                                         containerColor = MaterialTheme.colorScheme.surface,

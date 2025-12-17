@@ -31,7 +31,7 @@ fun SphereApp() {
         Screen.Explore,
         Screen.Search,
         Screen.Subscription,
-        Screen.Profile
+        Screen.Music
     )
 
     // Hide BottomBar on Splash Screen and Player Screen
@@ -77,6 +77,9 @@ fun SphereApp() {
                 com.sphere.app.ui.screens.HomeScreen(
                     onVideoClick = { videoUrl: String, title: String, channel: String ->
                         navController.navigate(Screen.Player.createRoute(videoUrl, title, channel))
+                    },
+                    onProfileClick = {
+                        navController.navigate(Screen.Profile.route)
                     }
                 )
             }
@@ -90,6 +93,7 @@ fun SphereApp() {
                 )
             }
             composable(Screen.Subscription.route) { com.sphere.app.ui.screens.SubscriptionScreen() }
+            composable(Screen.Music.route) { com.sphere.app.ui.screens.MusicScreen() }
             composable(Screen.Profile.route) { com.sphere.app.ui.screens.ProfileScreen() }
             composable(
                 route = Screen.Player.route,

@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Subscriptions
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -16,6 +17,7 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector?
     object Explore : Screen("explore", "Explore", Icons.Default.Explore)
     object Search : Screen("search", "Search", Icons.Default.Search)
     object Subscription : Screen("subscription", "Subscription", Icons.Default.Subscriptions)
+    object Music : Screen("music", "Music", Icons.Default.LibraryMusic)
     object Profile : Screen("profile", "You", Icons.Default.AccountCircle)
     object Player : Screen("player/{videoUrl}/{title}/{channel}", "Player", null) {
         fun createRoute(videoUrl: String, title: String, channel: String): String {
