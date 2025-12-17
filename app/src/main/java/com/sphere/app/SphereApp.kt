@@ -18,6 +18,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
+import com.sphere.app.ui.screens.SearchScreen
 
 @Composable
 fun SphereApp() {
@@ -28,6 +29,7 @@ fun SphereApp() {
     val bottomNavItems = listOf(
         Screen.Home,
         Screen.Explore,
+        Screen.Search,
         Screen.Subscription,
         Screen.Profile
     )
@@ -79,6 +81,7 @@ fun SphereApp() {
                 )
             }
             composable(Screen.Explore.route) { com.sphere.app.ui.screens.ExploreScreen() }
+            composable(Screen.Search.route) { SearchScreen() }
             composable(Screen.Subscription.route) { com.sphere.app.ui.screens.SubscriptionScreen() }
             composable(Screen.Profile.route) { com.sphere.app.ui.screens.ProfileScreen() }
             composable(

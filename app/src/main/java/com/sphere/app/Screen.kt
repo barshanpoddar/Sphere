@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Subscriptions
 import androidx.compose.ui.graphics.vector.ImageVector
 import java.net.URLEncoder
@@ -13,6 +14,7 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector?
     object Splash : Screen("splash", "Splash", null)
     object Home : Screen("home", "Home", Icons.Default.Home)
     object Explore : Screen("explore", "Explore", Icons.Default.Explore)
+    object Search : Screen("search", "Search", Icons.Default.Search)
     object Subscription : Screen("subscription", "Subscription", Icons.Default.Subscriptions)
     object Profile : Screen("profile", "You", Icons.Default.AccountCircle)
     object Player : Screen("player/{videoUrl}/{title}/{channel}", "Player", null) {

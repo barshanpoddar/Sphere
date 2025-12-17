@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
@@ -20,12 +21,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.Help
+import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Incognito
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.PlaylistAdd
-import androidx.compose.material.icons.filled.PlaylistPlay
+import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
+import androidx.compose.material.icons.filled.PrivacyTip
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.ThumbUp
@@ -84,7 +85,7 @@ fun ActionPills() {
     ) {
         ActionPill("Switch Account", Icons.Default.AccountCircle)
         ActionPill("Google Account", Icons.Default.AccountCircle)
-        ActionPill("Incognito", Icons.Default.Incognito)
+        ActionPill("Incognito", Icons.Default.PrivacyTip)
         ActionPill("Share Profile", Icons.Default.Share)
     }
 }
@@ -164,7 +165,7 @@ fun PlaylistsSection() {
         Spacer(modifier = Modifier.height(8.dp))
         PlaylistItem("Liked Videos", Icons.Default.ThumbUp)
         PlaylistItem("Watch Later", Icons.Default.WatchLater)
-        PlaylistItem("My Playlist", Icons.Default.PlaylistPlay)
+        PlaylistItem("My Playlist", Icons.AutoMirrored.Filled.PlaylistPlay)
     }
 }
 
@@ -222,7 +223,7 @@ fun SettingsUtilitiesSection() {
         Spacer(modifier = Modifier.height(8.dp))
         UtilityItem("Settings", Icons.Default.Settings)
         UtilityItem("Time Watched", Icons.Default.History)
-        UtilityItem("Help & Feedback", Icons.Default.Help)
+        UtilityItem("Help & Feedback", Icons.AutoMirrored.Filled.Help)
     }
 }
 

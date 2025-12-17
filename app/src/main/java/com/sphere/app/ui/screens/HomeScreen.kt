@@ -1,89 +1,205 @@
 package com.sphere.app.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayCircleFilled
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(onVideoClick: (String, String, String) -> Unit) {
     val sampleVideoUrl = "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
 
-    LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        items(5) { index ->
-            VideoCard(
-                    title = "Sample Video Title $index",
-                    channelName = "Channel $index",
-                    onClick = {
-                        val encodedUrl =
-                                URLEncoder.encode(sampleVideoUrl, StandardCharsets.UTF_8.toString())
-                        onVideoClick(encodedUrl, "Sample Video Title $index", "Channel $index")
-                    }
-            )
+    Scaffold(
+            topBar = {
+                TopAppBar(
+                        title = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                // YouTube-like Icon/Logo Placeholder (Red Play Button)
+                                Surface(
+                                        shape = RoundedCornerShape(4.dp),
+                                        color = Color.Red,
+                                        modifier = Modifier.size(30.dp, 20.dp).padding(end = 4.dp)
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Icon(
+                                                painter =
+                                                        painterResource(
+                                                                id =
+                                                                        android.R
+                                                                                .drawable
+                                                                                .ic_media_play
+                                                        ),
+                                                contentDescription = "Logo",
+                                                tint = Color.White,
+                                                modifier = Modifier.size(12.dp)
+                                        )
+                                    }
+                                }
+                                Text(
+                                        text = "Sphere",
+                                        style =
+                                                MaterialTheme.typography.titleLarge.copy(
+                                                        fontWeight = FontWeight.Bold
+                                                )
+                                )
+                            }
+                        },
+
+                        colors =
+                                TopAppBarDefaults.topAppBarColors(
+                                        containerColor = MaterialTheme.colorScheme.surface,
+                                        titleContentColor = MaterialTheme.colorScheme.onSurface,
+                                        actionIconContentColor = MaterialTheme.colorScheme.onSurface
+                                )
+                )
+            }
+    ) { paddingValues ->
+        LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(paddingValues),
+                contentPadding = PaddingValues(bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(10) { index ->
+                VideoItem(
+                        title =
+                                "Amazing Video Title That Might wrap to two lines because it is long $index",
+                        channelName = "Channel $index",
+                        views = "${(1..999).random()}K views",
+                        time = "${(1..11).random()} months ago",
+                        duration = "${(1..10).random()}:00",
+                        onClick = {
+                            val encodedUrl =
+                                    URLEncoder.encode(
+                                            sampleVideoUrl,
+                                            StandardCharsets.UTF_8.toString()
+                                    )
+                            onVideoClick(
+                                    encodedUrl,
+                                    "Amazing Video Title... $index",
+                                    "Channel $index"
+                            )
+                        }
+                )
+            }
         }
     }
 }
 
 @Composable
-fun VideoCard(title: String, channelName: String, onClick: () -> Unit) {
-    // Generate a deterministic random-like image based on title/length to have variety
+fun VideoItem(
+        title: String,
+        channelName: String,
+        views: String,
+        time: String,
+        duration: String,
+        onClick: () -> Unit
+) {
+    // Deterministic random seed for consistent thumbnails per item
     val seed = title.hashCode()
     val thumbnailUrl = "https://picsum.photos/seed/$seed/640/360"
+    val avatarUrl = "https://picsum.photos/seed/${seed + 1}/100/100"
 
-    Card(
-            modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column {
-            Box(contentAlignment = Alignment.Center) {
-                AsyncImage(
-                        model = thumbnailUrl,
-                        contentDescription = "Video Thumbnail",
-                        modifier = Modifier.fillMaxWidth().aspectRatio(16 / 9f),
-                        contentScale = ContentScale.Crop
-                )
-                Icon(
-                        imageVector = Icons.Default.PlayCircleFilled,
-                        contentDescription = "Play",
-                        tint = Color.White.copy(alpha = 0.8f),
-                        modifier = Modifier.height(48.dp).aspectRatio(1f)
+    Column(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
+        // Thumbnail Section
+        Box(contentAlignment = Alignment.BottomEnd) {
+            AsyncImage(
+                    model = thumbnailUrl,
+                    contentDescription = "Thumbnail",
+                    modifier = Modifier.fillMaxWidth().aspectRatio(16 / 9f),
+                    contentScale = ContentScale.Crop,
+                    // Add a placeholder background to avoid white flashes
+                    placeholder = painterResource(android.R.drawable.ic_menu_gallery)
+            )
+
+            // Duration Badge
+            Surface(
+                    color = Color.Black.copy(alpha = 0.8f),
+                    shape = RoundedCornerShape(4.dp),
+                    modifier = Modifier.padding(8.dp)
+            ) {
+                Text(
+                        text = duration,
+                        color = Color.White,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
                 )
             }
-            Column(modifier = Modifier.padding(12.dp)) {
-                Text(text = title, style = MaterialTheme.typography.titleMedium)
+        }
+
+        // Details Section including Avatar
+        Row(modifier = Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.Top) {
+            // Channel Avatar
+            AsyncImage(
+                    model = avatarUrl,
+                    contentDescription = "Avatar",
+                    modifier = Modifier.size(36.dp).clip(CircleShape).background(Color.Gray),
+                    contentScale = ContentScale.Crop
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // Text Info
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                        text = title,
+                        style = MaterialTheme.typography.bodyLarge,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                        text = channelName,
+                        text = "$channelName • $views • $time",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.secondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2
+                )
+            }
+
+            // More Options Icon
+            IconButton(onClick = { /* Show options menu */}, modifier = Modifier.size(24.dp)) {
+                Icon(
+                        Icons.Default.MoreVert,
+                        contentDescription = "More",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
