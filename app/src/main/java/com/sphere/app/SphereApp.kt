@@ -81,7 +81,14 @@ fun SphereApp() {
                 )
             }
             composable(Screen.Explore.route) { com.sphere.app.ui.screens.ExploreScreen() }
-            composable(Screen.Search.route) { SearchScreen() }
+            composable(Screen.Search.route) { 
+                SearchScreen(
+                    onNavigateBack = { navController.navigateUp() },
+                    onVideoClick = { videoUrl: String, title: String, channel: String ->
+                        navController.navigate(Screen.Player.createRoute(videoUrl, title, channel))
+                    }
+                )
+            }
             composable(Screen.Subscription.route) { com.sphere.app.ui.screens.SubscriptionScreen() }
             composable(Screen.Profile.route) { com.sphere.app.ui.screens.ProfileScreen() }
             composable(
