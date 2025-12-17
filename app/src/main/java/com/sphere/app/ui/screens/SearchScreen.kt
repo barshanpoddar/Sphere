@@ -60,14 +60,17 @@ import java.nio.charset.StandardCharsets
 @Composable
 fun SearchScreen(
     onNavigateBack: () -> Unit = {},
-    onVideoClick: (String, String, String) -> Unit = { _, _, _ -> }
+    onVideoClick: (String, String, String) -> Unit = { _, _, _ -> },
+    focusTrigger: Int = 0
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
 
-    // Auto-focus on the search field when the screen opens
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
+    // Only auto-focus when trigger value changes (double tap on search tab)
+    LaunchedEffect(focusTrigger) {
+        if (focusTrigger > 0) {
+            focusRequester.requestFocus()
+        }
     }
 
     Scaffold(

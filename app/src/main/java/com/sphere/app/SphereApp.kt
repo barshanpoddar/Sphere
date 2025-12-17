@@ -1,5 +1,12 @@
 package com.sphere.app
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -8,6 +15,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -25,6 +35,7 @@ fun SphereApp() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    var searchFocusTrigger by remember { mutableStateOf(0) }
 
     val bottomNavItems = listOf(
         Screen.Home,
@@ -47,12 +58,17 @@ fun SphereApp() {
                             label = { Text(screen.title) },
                             selected = currentRoute == screen.route,
                             onClick = {
-                                navController.navigate(screen.route) {
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
+                                if (screen.route == Screen.Search.route && currentRoute == Screen.Search.route) {
+                                    // Already on search screen, trigger focus
+                                    searchFocusTrigger++
+                                } else {
+                                    navController.navigate(screen.route) {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
                                     }
-                                    launchSingleTop = true
-                                    restoreState = true
                                 }
                             }
                         )
@@ -64,7 +80,11 @@ fun SphereApp() {
         NavHost(
             navController = navController,
             startDestination = Screen.Splash.route,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None },
+            popEnterTransition = { EnterTransition.None },
+            popExitTransition = { ExitTransition.None }
         ) {
             composable(Screen.Splash.route) {
                 com.sphere.app.ui.screens.SplashScreen(onSplashFinished = {
@@ -89,7 +109,8 @@ fun SphereApp() {
                     onNavigateBack = { navController.navigateUp() },
                     onVideoClick = { videoUrl: String, title: String, channel: String ->
                         navController.navigate(Screen.Player.createRoute(videoUrl, title, channel))
-                    }
+                    },
+                    focusTrigger = searchFocusTrigger
                 )
             }
             composable(Screen.Subscription.route) { com.sphere.app.ui.screens.SubscriptionScreen() }
