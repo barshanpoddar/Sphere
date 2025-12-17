@@ -14,6 +14,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +37,13 @@ fun SphereApp() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     var searchFocusTrigger by remember { mutableStateOf(0) }
+
+    // Reset the focus trigger when navigating away from search screen
+    LaunchedEffect(currentRoute) {
+        if (currentRoute != Screen.Search.route) {
+            searchFocusTrigger = 0
+        }
+    }
 
     val bottomNavItems = listOf(
         Screen.Home,
