@@ -1,8 +1,13 @@
 package com.sphere.app.ui.screens
 
+import android.graphics.BlurMaskFilter
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -24,6 +29,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -53,10 +59,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
@@ -104,7 +115,15 @@ fun SearchScreen(
                         else -> searchBarHeightRaw
                 }
 
-        // val actionWidthRaw = (screenWidthDp * 0.14f).dp // Currently unused calculation
+        val searchBarGap = 12.dp
+        val widthBuffer = 32.dp
+        val expandedBarWidth =
+                (screenWidthDp -
+                                (horizontalPadding.value * 2) -
+                                searchBarHeight.value -
+                                searchBarGap.value -
+                                widthBuffer.value)
+                        .dp
 
         var aiExpanded by remember { mutableStateOf(false) }
 
@@ -129,8 +148,7 @@ fun SearchScreen(
                                         val searchBarWidth by
                                                 animateDpAsState(
                                                         targetValue =
-                                                                if (!aiExpanded)
-                                                                        (screenWidthDp - 80).dp
+                                                                if (!aiExpanded) expandedBarWidth
                                                                 else searchBarHeight,
                                                         animationSpec =
                                                                 spring(
@@ -142,11 +160,11 @@ fun SearchScreen(
                                                 )
 
                                         // Animate AI search bar width
+                                        var isAiFullyExpanded by remember { mutableStateOf(false) }
                                         val aiBarWidth by
                                                 animateDpAsState(
                                                         targetValue =
-                                                                if (aiExpanded)
-                                                                        (screenWidthDp - 80).dp
+                                                                if (aiExpanded) expandedBarWidth
                                                                 else searchBarHeight,
                                                         animationSpec =
                                                                 spring(
@@ -154,7 +172,29 @@ fun SearchScreen(
                                                                                 Spring.DampingRatioLowBouncy,
                                                                         stiffness = 50f
                                                                 ),
-                                                        label = "aiBarWidth"
+                                                        label = "aiBarWidth",
+                                                        finishedListener = { finalWidth ->
+                                                                isAiFullyExpanded =
+                                                                        aiExpanded &&
+                                                                                finalWidth >=
+                                                                                        expandedBarWidth
+                                                        }
+                                                )
+
+                                        // Rotation animation for the gradient border
+                                        val infiniteTransition =
+                                                rememberInfiniteTransition(label = "borderRotation")
+                                        val rotation by
+                                                infiniteTransition.animateFloat(
+                                                        initialValue = 0f,
+                                                        targetValue = 360f,
+                                                        animationSpec =
+                                                                infiniteRepeatable(
+                                                                        animation = tween(2000),
+                                                                        repeatMode =
+                                                                                RepeatMode.Restart
+                                                                ),
+                                                        label = "rotation"
                                                 )
 
                                         Row(
@@ -167,12 +207,17 @@ fun SearchScreen(
                                                                         bottom = verticalPadding
                                                                 ),
                                                 verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.SpaceBetween
+                                                horizontalArrangement =
+                                                        Arrangement.spacedBy(searchBarGap)
                                         ) {
                                                 // Regular Search Bar / Button
                                                 Surface(
                                                         modifier =
                                                                 Modifier.width(searchBarWidth)
+                                                                        .widthIn(
+                                                                                min =
+                                                                                        searchBarHeight
+                                                                        )
                                                                         .height(searchBarHeight)
                                                                         .shadow(
                                                                                 if (!aiExpanded)
@@ -372,6 +417,10 @@ fun SearchScreen(
                                                 Surface(
                                                         modifier =
                                                                 Modifier.width(aiBarWidth)
+                                                                        .widthIn(
+                                                                                min =
+                                                                                        searchBarHeight
+                                                                        )
                                                                         .height(searchBarHeight)
                                                                         .shadow(
                                                                                 if (aiExpanded) 6.dp
@@ -379,7 +428,55 @@ fun SearchScreen(
                                                                                 if (aiExpanded)
                                                                                         aiPillShape
                                                                                 else CircleShape
-                                                                        ),
+                                                                        )
+                                                                        .drawBehind {
+                                                                                if (isAiFullyExpanded
+                                                                                ) {
+                                                                                        val glowColor =
+                                                                                                Color(
+                                                                                                                0xFF7C4DFF
+                                                                                                        )
+                                                                                                        .copy(
+                                                                                                                alpha =
+                                                                                                                        0.4f
+                                                                                                        )
+                                                                                        drawIntoCanvas {
+                                                                                                canvas
+                                                                                                ->
+                                                                                                val paint =
+                                                                                                        Paint()
+                                                                                                val frameworkPaint =
+                                                                                                        paint.asFrameworkPaint()
+                                                                                                frameworkPaint
+                                                                                                        .maskFilter =
+                                                                                                        BlurMaskFilter(
+                                                                                                                25f,
+                                                                                                                BlurMaskFilter
+                                                                                                                        .Blur
+                                                                                                                        .NORMAL
+                                                                                                        )
+                                                                                                frameworkPaint
+                                                                                                        .color =
+                                                                                                        glowColor
+                                                                                                                .toArgb()
+
+                                                                                                val spread =
+                                                                                                        2.dp.toPx()
+                                                                                                canvas.nativeCanvas
+                                                                                                        .drawRoundRect(
+                                                                                                                -spread,
+                                                                                                                -spread,
+                                                                                                                size.width +
+                                                                                                                        spread,
+                                                                                                                size.height +
+                                                                                                                        spread,
+                                                                                                                50.dp.toPx(),
+                                                                                                                50.dp.toPx(),
+                                                                                                                frameworkPaint
+                                                                                                        )
+                                                                                        }
+                                                                                }
+                                                                        },
                                                         shape =
                                                                 if (aiExpanded) aiPillShape
                                                                 else CircleShape,
@@ -391,26 +488,109 @@ fun SearchScreen(
                                                                         if (aiExpanded) 2.dp
                                                                         else 1.dp,
                                                                         if (aiExpanded) {
-                                                                                androidx.compose.ui
-                                                                                        .graphics
-                                                                                        .Brush
-                                                                                        .linearGradient(
-                                                                                                colors =
-                                                                                                        listOf(
-                                                                                                                Color(
-                                                                                                                        0xFFE040FB
+                                                                                if (isAiFullyExpanded
+                                                                                ) {
+                                                                                        androidx.compose
+                                                                                                .ui
+                                                                                                .graphics
+                                                                                                .Brush
+                                                                                                .linearGradient(
+                                                                                                        colors =
+                                                                                                                listOf(
+                                                                                                                        Color(
+                                                                                                                                0xFFE040FB
+                                                                                                                        ),
+                                                                                                                        Color(
+                                                                                                                                0xFF7C4DFF
+                                                                                                                        ),
+                                                                                                                        Color(
+                                                                                                                                0xFF448AFF
+                                                                                                                        ),
+                                                                                                                        Color(
+                                                                                                                                0xFF18FFFF
+                                                                                                                        ),
+                                                                                                                        Color(
+                                                                                                                                0xFFE040FB
+                                                                                                                        )
                                                                                                                 ),
-                                                                                                                Color(
-                                                                                                                        0xFF7C4DFF
-                                                                                                                ),
-                                                                                                                Color(
-                                                                                                                        0xFF448AFF
-                                                                                                                ),
-                                                                                                                Color(
-                                                                                                                        0xFF18FFFF
+                                                                                                        start =
+                                                                                                                androidx.compose
+                                                                                                                        .ui
+                                                                                                                        .geometry
+                                                                                                                        .Offset(
+                                                                                                                                x =
+                                                                                                                                        (Math.cos(
+                                                                                                                                                        Math.toRadians(
+                                                                                                                                                                rotation.toDouble()
+                                                                                                                                                        )
+                                                                                                                                                )
+                                                                                                                                                .toFloat() +
+                                                                                                                                                1f) /
+                                                                                                                                                2f *
+                                                                                                                                                1000f,
+                                                                                                                                y =
+                                                                                                                                        (Math.sin(
+                                                                                                                                                        Math.toRadians(
+                                                                                                                                                                rotation.toDouble()
+                                                                                                                                                        )
+                                                                                                                                                )
+                                                                                                                                                .toFloat() +
+                                                                                                                                                1f) /
+                                                                                                                                                2f *
+                                                                                                                                                1000f
+                                                                                                                        ),
+                                                                                                        end =
+                                                                                                                androidx.compose
+                                                                                                                        .ui
+                                                                                                                        .geometry
+                                                                                                                        .Offset(
+                                                                                                                                x =
+                                                                                                                                        (Math.cos(
+                                                                                                                                                        Math.toRadians(
+                                                                                                                                                                rotation.toDouble() +
+                                                                                                                                                                        180
+                                                                                                                                                        )
+                                                                                                                                                )
+                                                                                                                                                .toFloat() +
+                                                                                                                                                1f) /
+                                                                                                                                                2f *
+                                                                                                                                                1000f,
+                                                                                                                                y =
+                                                                                                                                        (Math.sin(
+                                                                                                                                                        Math.toRadians(
+                                                                                                                                                                rotation.toDouble() +
+                                                                                                                                                                        180
+                                                                                                                                                        )
+                                                                                                                                                )
+                                                                                                                                                .toFloat() +
+                                                                                                                                                1f) /
+                                                                                                                                                2f *
+                                                                                                                                                1000f
+                                                                                                                        )
+                                                                                                )
+                                                                                } else {
+                                                                                        androidx.compose
+                                                                                                .ui
+                                                                                                .graphics
+                                                                                                .Brush
+                                                                                                .linearGradient(
+                                                                                                        colors =
+                                                                                                                listOf(
+                                                                                                                        Color(
+                                                                                                                                0xFFE040FB
+                                                                                                                        ),
+                                                                                                                        Color(
+                                                                                                                                0xFF7C4DFF
+                                                                                                                        ),
+                                                                                                                        Color(
+                                                                                                                                0xFF448AFF
+                                                                                                                        ),
+                                                                                                                        Color(
+                                                                                                                                0xFF18FFFF
+                                                                                                                        )
                                                                                                                 )
-                                                                                                        )
-                                                                                        )
+                                                                                                )
+                                                                                }
                                                                         } else {
                                                                                 androidx.compose.ui
                                                                                         .graphics
