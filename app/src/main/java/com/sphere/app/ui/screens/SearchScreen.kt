@@ -122,7 +122,7 @@ fun SearchScreen(
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(start = horizontalPadding, top = verticalPadding, end = horizontalPadding)
+                                .padding(start = horizontalPadding, top = verticalPadding, end = horizontalPadding, bottom = verticalPadding)
                                 .height(searchBarHeight)
                                 .animateContentSize()
                                 .shadow(6.dp, pillShape),
@@ -190,7 +190,7 @@ fun SearchScreen(
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(start = horizontalPadding, top = verticalPadding, end = horizontalPadding)
+                                .padding(start = horizontalPadding, top = verticalPadding, end = horizontalPadding, bottom = verticalPadding)
                                 .height(searchBarHeight)
                                 .animateContentSize(),
                             shape = RoundedCornerShape(12.dp),
@@ -225,7 +225,7 @@ fun SearchScreen(
                     if (aiExpanded) {
                         Surface(
                             modifier = Modifier
-                                .padding(top = verticalPadding, end = horizontalPadding)
+                                .padding(top = verticalPadding, end = horizontalPadding, bottom = verticalPadding)
                                 .height(searchBarHeight)
                                 .width(actionWidth)
                                 .shadow(4.dp, RoundedCornerShape(12.dp)),
@@ -253,7 +253,7 @@ fun SearchScreen(
                     // Sparkle / AI toggle button (right)
                     Surface(
                         modifier = Modifier
-                            .padding(top = verticalPadding, end = horizontalPadding)
+                            .padding(top = verticalPadding, end = horizontalPadding, bottom = verticalPadding)
                             .height(searchBarHeight)
                             .width(searchBarHeight)
                             .shadow(4.dp, CircleShape),
