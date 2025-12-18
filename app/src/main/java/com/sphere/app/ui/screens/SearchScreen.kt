@@ -15,14 +15,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.MoreVert
@@ -62,9 +58,8 @@ import java.nio.charset.StandardCharsets
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
-    onNavigateBack: () -> Unit = {},
     onVideoClick: (String, String, String) -> Unit = { _, _, _ -> },
-    focusTrigger: Int = 0
+    focusTrigger: Int = 0,
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
@@ -85,12 +80,12 @@ fun SearchScreen(
                             .fillMaxWidth()
                             .padding(start = 8.dp, top = 8.dp, end = 8.dp)
                             .height(48.dp),
-                        shape = RoundedCornerShape(24.dp),
+                        shape = RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp, topStart = 24.dp, bottomStart = 24.dp),
                         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
                     ) {
                         TextField(
                             value = searchQuery,
-                            onValueChange = { searchQuery = it },
+                            onValueChange = { },
                             placeholder = { 
                                 Text(
                                     "Search videos",
@@ -111,7 +106,7 @@ fun SearchScreen(
                             singleLine = true,
                             trailingIcon = {
                                 if (searchQuery.isNotEmpty()) {
-                                    IconButton(onClick = { searchQuery = "" }) {
+                                    IconButton(onClick = { }) {
                                         Icon(
                                             Icons.Default.Clear,
                                             contentDescription = "Clear",
@@ -124,21 +119,28 @@ fun SearchScreen(
                     }
                 },
                 actions = {
-                    Surface(
-                        modifier = Modifier
-                            .padding(top = 8.dp, end = 8.dp)
-                            .size(48.dp),
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
-                    ) {
-                        IconButton(onClick = { /* voice search functionality */ }) {
-                            Icon(
-                                Icons.Filled.Mic,
-                                contentDescription = "Voice search",
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
+                        Surface(
+                            modifier = Modifier
+                                .padding(top = 8.dp, end = 8.dp)
+                                .height(48.dp)
+                                .width(60.dp),
+                            shape = RoundedCornerShape(topEnd = 24.dp, bottomEnd = 24.dp, topStart = 4.dp, bottomStart = 4.dp),
+                            color = MaterialTheme.colorScheme.primary
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                IconButton(onClick = { /* voice search functionality */ }) {
+                                    Icon(
+                                        Icons.Filled.Mic,
+                                        contentDescription = "Voice search",
+                                        tint = Color.White
+                                    )
+                                }
+                            }
                         }
-                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface,

@@ -28,7 +28,7 @@ import androidx.compose.material.icons.filled.ThumbDown
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -152,8 +152,8 @@ fun ActionButton(icon: ImageVector, label: String) {
 
 @Composable
 fun ChannelInfoRow(channelName: String) {
-    Column {
-        Divider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
+        Column {
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
         Row(
                 modifier = Modifier.fillMaxWidth().padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -195,7 +195,7 @@ fun ChannelInfoRow(channelName: String) {
                             androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp)
             ) { Text(text = "Subscribe", style = MaterialTheme.typography.labelLarge) }
         }
-        Divider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
     }
 }
 

@@ -2,11 +2,6 @@ package com.sphere.app
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -114,11 +109,10 @@ fun SphereApp() {
             composable(Screen.Explore.route) { com.sphere.app.ui.screens.ExploreScreen() }
             composable(Screen.Search.route) { 
                 SearchScreen(
-                    onNavigateBack = { navController.navigateUp() },
                     onVideoClick = { videoUrl: String, title: String, channel: String ->
                         navController.navigate(Screen.Player.createRoute(videoUrl, title, channel))
                     },
-                    focusTrigger = searchFocusTrigger
+                    focusTrigger = searchFocusTrigger,
                 )
             }
             composable(Screen.Subscription.route) { com.sphere.app.ui.screens.SubscriptionScreen() }
