@@ -17,12 +17,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.shadow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,6 +45,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.animation.animateContentSize
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -50,6 +56,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import java.net.URLEncoder
@@ -64,6 +71,40 @@ fun SearchScreen(
     var searchQuery by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
 
+    val configuration = LocalConfiguration.current
+    val screenWidthDp = configuration.screenWidthDp
+    val screenHeightDp = configuration.screenHeightDp
+
+    val horizontalPaddingRaw = (screenWidthDp * 0.02f).dp
+    val horizontalPadding = when {
+        horizontalPaddingRaw < 2.dp -> 2.dp
+        horizontalPaddingRaw > 24.dp -> 24.dp
+        else -> horizontalPaddingRaw
+    }
+
+    val verticalPaddingRaw = (screenHeightDp * 0.005f).dp
+    val verticalPadding = when {
+        verticalPaddingRaw < 2.dp -> 2.dp
+        verticalPaddingRaw > 8.dp -> 8.dp
+        else -> verticalPaddingRaw
+    }
+
+    val searchBarHeightRaw = (screenHeightDp * 0.06f).dp
+    val searchBarHeight = when {
+        searchBarHeightRaw < 44.dp -> 44.dp
+        searchBarHeightRaw > 64.dp -> 64.dp
+        else -> searchBarHeightRaw
+    }
+
+    val actionWidthRaw = (screenWidthDp * 0.14f).dp
+    val actionWidth = when {
+        actionWidthRaw < 48.dp -> 48.dp
+        actionWidthRaw > 80.dp -> 80.dp
+        else -> actionWidthRaw
+    }
+
+    var aiExpanded by remember { mutableStateOf(false) }
+
     // Only auto-focus when trigger value changes (double tap on search tab)
     LaunchedEffect(focusTrigger) {
         if (focusTrigger > 0) {
@@ -75,72 +116,163 @@ fun SearchScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 8.dp, top = 8.dp, end = 8.dp)
-                            .height(48.dp),
-                        shape = RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp, topStart = 24.dp, bottomStart = 24.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
-                    ) {
-                        TextField(
-                            value = searchQuery,
-                            onValueChange = { },
-                            placeholder = { 
-                                Text(
-                                    "Search videos",
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .focusRequester(focusRequester),
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                                disabledContainerColor = Color.Transparent,
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent,
-                                disabledIndicatorColor = Color.Transparent,
-                            ),
-                            singleLine = true,
-                            trailingIcon = {
-                                if (searchQuery.isNotEmpty()) {
-                                    IconButton(onClick = { }) {
-                                        Icon(
-                                            Icons.Default.Clear,
-                                            contentDescription = "Clear",
-                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                }
-                            }
-                        )
-                    }
-                },
-                actions = {
+                    if (!aiExpanded) {
+                        val pillShape = RoundedCornerShape(50.dp)
+
                         Surface(
                             modifier = Modifier
-                                .padding(top = 8.dp, end = 8.dp)
-                                .height(48.dp)
-                                .width(60.dp),
-                            shape = RoundedCornerShape(topEnd = 24.dp, bottomEnd = 24.dp, topStart = 4.dp, bottomStart = 4.dp),
-                            color = MaterialTheme.colorScheme.primary
+                                .fillMaxWidth()
+                                .padding(start = horizontalPadding, top = verticalPadding, end = horizontalPadding)
+                                .height(searchBarHeight)
+                                .animateContentSize()
+                                .shadow(6.dp, pillShape),
+                            shape = pillShape,
+                            color = MaterialTheme.colorScheme.surface,
+                            tonalElevation = 6.dp,
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceVariant)
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                IconButton(onClick = { /* voice search functionality */ }) {
+                            TextField(
+                                value = searchQuery,
+                                onValueChange = { searchQuery = it },
+                                leadingIcon = {
                                     Icon(
-                                        Icons.Filled.Mic,
-                                        contentDescription = "Voice search",
-                                        tint = Color.White
+                                        Icons.Default.Search,
+                                        contentDescription = "Search",
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                },
+                                placeholder = {
+                                    Text(
+                                        "Search videos",
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(searchBarHeight)
+                                    .clip(pillShape)
+                                    .padding(horizontal = 6.dp)
+                                    .focusRequester(focusRequester),
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = Color.Transparent,
+                                    unfocusedContainerColor = Color.Transparent,
+                                    disabledContainerColor = Color.Transparent,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                    disabledIndicatorColor = Color.Transparent,
+                                ),
+                                singleLine = true,
+                                trailingIcon = {
+                                    if (searchQuery.isNotEmpty()) {
+                                        IconButton(onClick = { searchQuery = "" }) {
+                                            Icon(
+                                                Icons.Default.Clear,
+                                                contentDescription = "Clear",
+                                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                        }
+                                    } else {
+                                        IconButton(onClick = { /* voice search */ }) {
+                                            Icon(
+                                                Icons.Filled.Mic,
+                                                contentDescription = "Voice search",
+                                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    } else {
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = horizontalPadding, top = verticalPadding, end = horizontalPadding)
+                                .height(searchBarHeight)
+                                .animateContentSize(),
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.9f)
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "AI Search",
+                                    modifier = Modifier.weight(1f),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    textAlign = TextAlign.Start
+                                )
+
+                                IconButton(onClick = { aiExpanded = false }) {
+                                    Icon(
+                                        Icons.Default.Clear,
+                                        contentDescription = "Close AI",
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
                         }
+                    }
+                },
+                actions = {
+                    // When AI is expanded show collapsed search button; otherwise show mic
+                    if (aiExpanded) {
+                        Surface(
+                            modifier = Modifier
+                                .padding(top = verticalPadding, end = horizontalPadding)
+                                .height(searchBarHeight)
+                                .width(actionWidth)
+                                .shadow(4.dp, RoundedCornerShape(12.dp)),
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.primary,
+                            tonalElevation = 4.dp,
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceVariant)
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                IconButton(onClick = { aiExpanded = false }) {
+                                    Icon(
+                                        Icons.Default.Search,
+                                        contentDescription = "Restore search",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // Sparkle / AI toggle button (right)
+                    Surface(
+                        modifier = Modifier
+                            .padding(top = verticalPadding, end = horizontalPadding)
+                            .height(searchBarHeight)
+                            .width(searchBarHeight)
+                            .shadow(4.dp, CircleShape),
+                        shape = CircleShape,
+                        color = if (aiExpanded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+                        tonalElevation = 4.dp,
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceVariant)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            IconButton(onClick = { aiExpanded = !aiExpanded }) {
+                                Icon(
+                                    Icons.Filled.AutoAwesome,
+                                    contentDescription = "Toggle AI",
+                                    tint = if (aiExpanded) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface,
