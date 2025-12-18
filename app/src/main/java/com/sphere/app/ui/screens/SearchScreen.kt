@@ -136,8 +136,7 @@ fun SearchScreen(
                                                                 spring(
                                                                         dampingRatio =
                                                                                 Spring.DampingRatioLowBouncy,
-                                                                        stiffness =
-                                                                                Spring.StiffnessMediumLow
+                                                                        stiffness = 50f
                                                                 ),
                                                         label = "searchBarWidth"
                                                 )
@@ -153,8 +152,7 @@ fun SearchScreen(
                                                                 spring(
                                                                         dampingRatio =
                                                                                 Spring.DampingRatioLowBouncy,
-                                                                        stiffness =
-                                                                                Spring.StiffnessMediumLow
+                                                                        stiffness = 50f
                                                                 ),
                                                         label = "aiBarWidth"
                                                 )
@@ -208,16 +206,16 @@ fun SearchScreen(
                                                                                         animationSpec =
                                                                                                 tween(
                                                                                                         durationMillis =
-                                                                                                                220,
+                                                                                                                500,
                                                                                                         delayMillis =
-                                                                                                                90
+                                                                                                                150
                                                                                                 )
                                                                                 ) togetherWith
                                                                                         fadeOut(
                                                                                                 animationSpec =
                                                                                                         tween(
                                                                                                                 durationMillis =
-                                                                                                                        90
+                                                                                                                        250
                                                                                                         )
                                                                                         )
                                                                         },
@@ -435,16 +433,16 @@ fun SearchScreen(
                                                                                         animationSpec =
                                                                                                 tween(
                                                                                                         durationMillis =
-                                                                                                                220,
+                                                                                                                500,
                                                                                                         delayMillis =
-                                                                                                                90
+                                                                                                                150
                                                                                                 )
                                                                                 ) togetherWith
                                                                                         fadeOut(
                                                                                                 animationSpec =
                                                                                                         tween(
                                                                                                                 durationMillis =
-                                                                                                                        90
+                                                                                                                        250
                                                                                                         )
                                                                                         )
                                                                         },
