@@ -46,6 +46,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,6 +68,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import java.net.URLEncoder
@@ -112,162 +124,284 @@ fun SearchScreen(
         }
     }
 
+    // State for AI search query
+    var aiSearchQuery by remember { mutableStateOf("") }
+    val aiFocusRequester = remember { FocusRequester() }
+
+    // Animation specs
+    val animationSpec = spring<Dp>(
+        dampingRatio = Spring.DampingRatioMediumBouncy,
+        stiffness = Spring.StiffnessMedium
+    )
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    if (!aiExpanded) {
-                        val pillShape = RoundedCornerShape(50.dp)
+                    val pillShape = RoundedCornerShape(50.dp)
 
-                        Surface(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = horizontalPadding, top = verticalPadding, end = horizontalPadding, bottom = verticalPadding)
-                                .height(searchBarHeight)
-                                .animateContentSize()
-                                .shadow(6.dp, pillShape),
-                            shape = pillShape,
-                            color = MaterialTheme.colorScheme.surface,
-                            tonalElevation = 6.dp,
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceVariant)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = horizontalPadding, top = verticalPadding, end = 0.dp, bottom = verticalPadding),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        // Search Bar - Animated width
+                        AnimatedVisibility(
+                            visible = !aiExpanded,
+                            enter = expandHorizontally(
+                                animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessMedium
+                                ),
+                                expandFrom = Alignment.Start
+                            ) + fadeIn(animationSpec = tween(200)),
+                            exit = shrinkHorizontally(
+                                animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessMedium
+                                ),
+                                shrinkTowards = Alignment.Start
+                            ) + fadeOut(animationSpec = tween(150)),
+                            modifier = Modifier.weight(1f)
                         ) {
-                            TextField(
-                                value = searchQuery,
-                                onValueChange = { searchQuery = it },
-                                leadingIcon = {
-                                    Icon(
-                                        Icons.Default.Search,
-                                        contentDescription = "Search",
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                },
-                                placeholder = {
-                                    Text(
-                                        "Search videos",
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                },
+                            Surface(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(searchBarHeight)
-                                    .clip(pillShape)
-                                    .padding(horizontal = 6.dp)
-                                    .focusRequester(focusRequester),
-                                colors = TextFieldDefaults.colors(
-                                    focusedContainerColor = Color.Transparent,
-                                    unfocusedContainerColor = Color.Transparent,
-                                    disabledContainerColor = Color.Transparent,
-                                    focusedIndicatorColor = Color.Transparent,
-                                    unfocusedIndicatorColor = Color.Transparent,
-                                    disabledIndicatorColor = Color.Transparent,
-                                ),
-                                singleLine = true,
-                                trailingIcon = {
-                                    if (searchQuery.isNotEmpty()) {
-                                        IconButton(onClick = { searchQuery = "" }) {
-                                            Icon(
-                                                Icons.Default.Clear,
-                                                contentDescription = "Clear",
-                                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                modifier = Modifier.size(18.dp)
-                                            )
-                                        }
-                                    } else {
-                                        IconButton(onClick = { /* voice search */ }) {
-                                            Icon(
-                                                Icons.Filled.Mic,
-                                                contentDescription = "Voice search",
-                                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                modifier = Modifier.size(18.dp)
-                                            )
+                                    .shadow(6.dp, pillShape),
+                                shape = pillShape,
+                                color = MaterialTheme.colorScheme.surface,
+                                tonalElevation = 6.dp,
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceVariant)
+                            ) {
+                                TextField(
+                                    value = searchQuery,
+                                    onValueChange = { searchQuery = it },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Default.Search,
+                                            contentDescription = "Search",
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    },
+                                    placeholder = {
+                                        Text(
+                                            "Search",
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(searchBarHeight)
+                                        .clip(pillShape)
+                                        .padding(horizontal = 6.dp)
+                                        .focusRequester(focusRequester),
+                                    colors = TextFieldDefaults.colors(
+                                        focusedContainerColor = Color.Transparent,
+                                        unfocusedContainerColor = Color.Transparent,
+                                        disabledContainerColor = Color.Transparent,
+                                        focusedIndicatorColor = Color.Transparent,
+                                        unfocusedIndicatorColor = Color.Transparent,
+                                        disabledIndicatorColor = Color.Transparent,
+                                    ),
+                                    singleLine = true,
+                                    trailingIcon = {
+                                        if (searchQuery.isNotEmpty()) {
+                                            IconButton(onClick = { searchQuery = "" }) {
+                                                Icon(
+                                                    Icons.Default.Clear,
+                                                    contentDescription = "Clear",
+                                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    modifier = Modifier.size(18.dp)
+                                                )
+                                            }
+                                        } else {
+                                            IconButton(onClick = { /* voice search */ }) {
+                                                Icon(
+                                                    Icons.Filled.Mic,
+                                                    contentDescription = "Voice search",
+                                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    modifier = Modifier.size(18.dp)
+                                                )
+                                            }
                                         }
                                     }
-                                }
-                            )
-                        }
-                    } else {
-                        Surface(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = horizontalPadding, top = verticalPadding, end = horizontalPadding, bottom = verticalPadding)
-                                .height(searchBarHeight)
-                                .animateContentSize(),
-                            shape = RoundedCornerShape(12.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.9f)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "AI Search",
-                                    modifier = Modifier.weight(1f),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    textAlign = TextAlign.Start
                                 )
+                            }
+                        }
 
-                                IconButton(onClick = { aiExpanded = false }) {
+                        // Collapsed Search Button (circular) - shows when AI is expanded
+                        AnimatedVisibility(
+                            visible = aiExpanded,
+                            enter = expandHorizontally(
+                                animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessMedium
+                                ),
+                                expandFrom = Alignment.Start
+                            ) + fadeIn(animationSpec = tween(200)),
+                            exit = shrinkHorizontally(
+                                animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessMedium
+                                ),
+                                shrinkTowards = Alignment.Start
+                            ) + fadeOut(animationSpec = tween(150))
+                        ) {
+                            Surface(
+                                modifier = Modifier
+                                    .size(searchBarHeight)
+                                    .shadow(4.dp, CircleShape),
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.surface,
+                                tonalElevation = 4.dp,
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceVariant),
+                                onClick = { aiExpanded = false }
+                            ) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
                                     Icon(
-                                        Icons.Default.Clear,
-                                        contentDescription = "Close AI",
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        Icons.Default.Search,
+                                        contentDescription = "Switch to search",
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(20.dp)
                                     )
                                 }
+                            }
+                        }
+
+                        // AI Search Bar - Animated (shows when AI is expanded)
+                        AnimatedVisibility(
+                            visible = aiExpanded,
+                            enter = expandHorizontally(
+                                animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessMedium
+                                ),
+                                expandFrom = Alignment.End
+                            ) + fadeIn(animationSpec = tween(200)),
+                            exit = shrinkHorizontally(
+                                animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessMedium
+                                ),
+                                shrinkTowards = Alignment.End
+                            ) + fadeOut(animationSpec = tween(150)),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            val aiPillShape = RoundedCornerShape(50.dp)
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(searchBarHeight)
+                                    .shadow(6.dp, aiPillShape),
+                                shape = aiPillShape,
+                                color = MaterialTheme.colorScheme.surface,
+                                tonalElevation = 6.dp,
+                                border = BorderStroke(
+                                    2.dp, 
+                                    androidx.compose.ui.graphics.Brush.linearGradient(
+                                        colors = listOf(
+                                            Color(0xFFE040FB),
+                                            Color(0xFF7C4DFF),
+                                            Color(0xFF448AFF),
+                                            Color(0xFF18FFFF)
+                                        )
+                                    )
+                                )
+                            ) {
+                                TextField(
+                                    value = aiSearchQuery,
+                                    onValueChange = { aiSearchQuery = it },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Default.Search,
+                                            contentDescription = "AI Search",
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    },
+                                    placeholder = {
+                                        Text(
+                                            "Talk to YouTube",
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(searchBarHeight)
+                                        .clip(aiPillShape)
+                                        .padding(horizontal = 6.dp)
+                                        .focusRequester(aiFocusRequester),
+                                    colors = TextFieldDefaults.colors(
+                                        focusedContainerColor = Color.Transparent,
+                                        unfocusedContainerColor = Color.Transparent,
+                                        disabledContainerColor = Color.Transparent,
+                                        focusedIndicatorColor = Color.Transparent,
+                                        unfocusedIndicatorColor = Color.Transparent,
+                                        disabledIndicatorColor = Color.Transparent,
+                                    ),
+                                    singleLine = true,
+                                    trailingIcon = {
+                                        if (aiSearchQuery.isNotEmpty()) {
+                                            IconButton(onClick = { aiSearchQuery = "" }) {
+                                                Icon(
+                                                    Icons.Default.Clear,
+                                                    contentDescription = "Clear",
+                                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    modifier = Modifier.size(18.dp)
+                                                )
+                                            }
+                                        }
+                                    }
+                                )
                             }
                         }
                     }
                 },
                 actions = {
-                    // When AI is expanded show collapsed search button; otherwise show mic
-                    if (aiExpanded) {
+                    // AI toggle button (circular) - shows when search bar is expanded
+                    AnimatedVisibility(
+                        visible = !aiExpanded,
+                        enter = expandHorizontally(
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessMedium
+                            ),
+                            expandFrom = Alignment.End
+                        ) + fadeIn(animationSpec = tween(200)),
+                        exit = shrinkHorizontally(
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessMedium
+                            ),
+                            shrinkTowards = Alignment.End
+                        ) + fadeOut(animationSpec = tween(150))
+                    ) {
                         Surface(
                             modifier = Modifier
                                 .padding(top = verticalPadding, end = horizontalPadding, bottom = verticalPadding)
-                                .height(searchBarHeight)
-                                .width(actionWidth)
-                                .shadow(4.dp, RoundedCornerShape(12.dp)),
-                            shape = RoundedCornerShape(12.dp),
-                            color = MaterialTheme.colorScheme.primary,
+                                .size(searchBarHeight)
+                                .shadow(4.dp, CircleShape),
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.surface,
                             tonalElevation = 4.dp,
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceVariant)
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceVariant),
+                            onClick = { aiExpanded = true }
                         ) {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
                                 contentAlignment = Alignment.Center
                             ) {
-                                IconButton(onClick = { aiExpanded = false }) {
-                                    Icon(
-                                        Icons.Default.Search,
-                                        contentDescription = "Restore search",
-                                        tint = Color.White,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    // Sparkle / AI toggle button (right)
-                    Surface(
-                        modifier = Modifier
-                            .padding(top = verticalPadding, end = horizontalPadding, bottom = verticalPadding)
-                            .height(searchBarHeight)
-                            .width(searchBarHeight)
-                            .shadow(4.dp, CircleShape),
-                        shape = CircleShape,
-                        color = if (aiExpanded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-                        tonalElevation = 4.dp,
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceVariant)
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            IconButton(onClick = { aiExpanded = !aiExpanded }) {
                                 Icon(
                                     Icons.Filled.AutoAwesome,
-                                    contentDescription = "Toggle AI",
-                                    tint = if (aiExpanded) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    contentDescription = "Switch to AI Search",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
