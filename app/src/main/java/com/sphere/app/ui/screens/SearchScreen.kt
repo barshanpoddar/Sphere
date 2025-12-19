@@ -138,6 +138,44 @@ fun SearchScreen(
         var aiSearchQuery by remember { mutableStateOf("") }
         val aiFocusRequester = remember { FocusRequester() }
 
+        // Performance: Cache expensive graphics objects
+        val glowPaint = remember { Paint() }
+        val blurMaskFilter = remember { BlurMaskFilter(25f, BlurMaskFilter.Blur.NORMAL) }
+
+        // Animation state for glow rotation
+        var isGlowRotating by remember { mutableStateOf(false) }
+        val glowRotationAnimatable = remember { androidx.compose.animation.core.Animatable(0f) }
+
+        // Glow fade-out animation
+        var shouldShowGlow by remember { mutableStateOf(false) }
+        val glowAlpha by
+                androidx.compose.animation.core.animateFloatAsState(
+                        targetValue = if (shouldShowGlow) 1f else 0f,
+                        animationSpec = tween(durationMillis = 1200),
+                        label = "glowAlpha"
+                )
+
+        LaunchedEffect(isGlowRotating) {
+                if (isGlowRotating) {
+                        shouldShowGlow = true
+                        glowRotationAnimatable.snapTo(0f)
+                        glowRotationAnimatable.animateTo(
+                                targetValue = 360f,
+                                animationSpec = tween(durationMillis = 800)
+                        )
+                        isGlowRotating = false
+                        aiExpanded = true
+                }
+        }
+
+        // Fade out glow after expansion completes
+        LaunchedEffect(aiExpanded) {
+                if (aiExpanded && shouldShowGlow) {
+                        kotlinx.coroutines.delay(800)
+                        shouldShowGlow = false
+                }
+        }
+
         Scaffold(
                 topBar = {
                         TopAppBar(
@@ -184,7 +222,7 @@ fun SearchScreen(
                                         // Rotation animation for the gradient border
                                         val infiniteTransition =
                                                 rememberInfiniteTransition(label = "borderRotation")
-                                        val rotation by
+                                        val infiniteRotation by
                                                 infiniteTransition.animateFloat(
                                                         initialValue = 0f,
                                                         targetValue = 360f,
@@ -196,6 +234,10 @@ fun SearchScreen(
                                                                 ),
                                                         label = "rotation"
                                                 )
+
+                                        val rotation =
+                                                if (isGlowRotating) glowRotationAnimatable.value
+                                                else infiniteRotation
 
                                         Row(
                                                 modifier =
@@ -430,7 +472,7 @@ fun SearchScreen(
                                                                                 else CircleShape
                                                                         )
                                                                         .drawBehind {
-                                                                                if (isAiFullyExpanded
+                                                                                if (glowAlpha > 0f
                                                                                 ) {
                                                                                         val glowColor =
                                                                                                 Color(
@@ -438,23 +480,23 @@ fun SearchScreen(
                                                                                                         )
                                                                                                         .copy(
                                                                                                                 alpha =
-                                                                                                                        0.4f
+                                                                                                                        0.4f *
+                                                                                                                                glowAlpha
                                                                                                         )
                                                                                         drawIntoCanvas {
                                                                                                 canvas
                                                                                                 ->
-                                                                                                val paint =
-                                                                                                        Paint()
                                                                                                 val frameworkPaint =
-                                                                                                        paint.asFrameworkPaint()
-                                                                                                frameworkPaint
-                                                                                                        .maskFilter =
-                                                                                                        BlurMaskFilter(
-                                                                                                                25f,
-                                                                                                                BlurMaskFilter
-                                                                                                                        .Blur
-                                                                                                                        .NORMAL
-                                                                                                        )
+                                                                                                        glowPaint
+                                                                                                                .asFrameworkPaint()
+                                                                                                if (frameworkPaint
+                                                                                                                .maskFilter ==
+                                                                                                                null
+                                                                                                ) {
+                                                                                                        frameworkPaint
+                                                                                                                .maskFilter =
+                                                                                                                blurMaskFilter
+                                                                                                }
                                                                                                 frameworkPaint
                                                                                                         .color =
                                                                                                         glowColor
@@ -485,112 +527,86 @@ fun SearchScreen(
                                                                 if (aiExpanded) 6.dp else 4.dp,
                                                         border =
                                                                 BorderStroke(
-                                                                        if (aiExpanded) 2.dp
+                                                                        if (glowAlpha > 0f) 2.dp
                                                                         else 1.dp,
-                                                                        if (aiExpanded) {
-                                                                                if (isAiFullyExpanded
-                                                                                ) {
-                                                                                        androidx.compose
-                                                                                                .ui
-                                                                                                .graphics
-                                                                                                .Brush
-                                                                                                .linearGradient(
-                                                                                                        colors =
-                                                                                                                listOf(
-                                                                                                                        Color(
-                                                                                                                                0xFFE040FB
-                                                                                                                        ),
-                                                                                                                        Color(
-                                                                                                                                0xFF7C4DFF
-                                                                                                                        ),
-                                                                                                                        Color(
-                                                                                                                                0xFF448AFF
-                                                                                                                        ),
-                                                                                                                        Color(
-                                                                                                                                0xFF18FFFF
-                                                                                                                        ),
-                                                                                                                        Color(
-                                                                                                                                0xFFE040FB
-                                                                                                                        )
+                                                                        if (glowAlpha > 0f) {
+                                                                                androidx.compose.ui
+                                                                                        .graphics
+                                                                                        .Brush
+                                                                                        .linearGradient(
+                                                                                                colors =
+                                                                                                        listOf(
+                                                                                                                Color(
+                                                                                                                        0xFFE040FB
                                                                                                                 ),
-                                                                                                        start =
-                                                                                                                androidx.compose
-                                                                                                                        .ui
-                                                                                                                        .geometry
-                                                                                                                        .Offset(
-                                                                                                                                x =
-                                                                                                                                        (Math.cos(
-                                                                                                                                                        Math.toRadians(
-                                                                                                                                                                rotation.toDouble()
-                                                                                                                                                        )
-                                                                                                                                                )
-                                                                                                                                                .toFloat() +
-                                                                                                                                                1f) /
-                                                                                                                                                2f *
-                                                                                                                                                1000f,
-                                                                                                                                y =
-                                                                                                                                        (Math.sin(
-                                                                                                                                                        Math.toRadians(
-                                                                                                                                                                rotation.toDouble()
-                                                                                                                                                        )
-                                                                                                                                                )
-                                                                                                                                                .toFloat() +
-                                                                                                                                                1f) /
-                                                                                                                                                2f *
-                                                                                                                                                1000f
-                                                                                                                        ),
-                                                                                                        end =
-                                                                                                                androidx.compose
-                                                                                                                        .ui
-                                                                                                                        .geometry
-                                                                                                                        .Offset(
-                                                                                                                                x =
-                                                                                                                                        (Math.cos(
-                                                                                                                                                        Math.toRadians(
-                                                                                                                                                                rotation.toDouble() +
-                                                                                                                                                                        180
-                                                                                                                                                        )
-                                                                                                                                                )
-                                                                                                                                                .toFloat() +
-                                                                                                                                                1f) /
-                                                                                                                                                2f *
-                                                                                                                                                1000f,
-                                                                                                                                y =
-                                                                                                                                        (Math.sin(
-                                                                                                                                                        Math.toRadians(
-                                                                                                                                                                rotation.toDouble() +
-                                                                                                                                                                        180
-                                                                                                                                                        )
-                                                                                                                                                )
-                                                                                                                                                .toFloat() +
-                                                                                                                                                1f) /
-                                                                                                                                                2f *
-                                                                                                                                                1000f
-                                                                                                                        )
-                                                                                                )
-                                                                                } else {
-                                                                                        androidx.compose
-                                                                                                .ui
-                                                                                                .graphics
-                                                                                                .Brush
-                                                                                                .linearGradient(
-                                                                                                        colors =
-                                                                                                                listOf(
-                                                                                                                        Color(
-                                                                                                                                0xFFE040FB
-                                                                                                                        ),
-                                                                                                                        Color(
-                                                                                                                                0xFF7C4DFF
-                                                                                                                        ),
-                                                                                                                        Color(
-                                                                                                                                0xFF448AFF
-                                                                                                                        ),
-                                                                                                                        Color(
-                                                                                                                                0xFF18FFFF
-                                                                                                                        )
+                                                                                                                Color(
+                                                                                                                        0xFF7C4DFF
+                                                                                                                ),
+                                                                                                                Color(
+                                                                                                                        0xFF448AFF
+                                                                                                                ),
+                                                                                                                Color(
+                                                                                                                        0xFF18FFFF
+                                                                                                                ),
+                                                                                                                Color(
+                                                                                                                        0xFFE040FB
                                                                                                                 )
-                                                                                                )
-                                                                                }
+                                                                                                        ),
+                                                                                                start =
+                                                                                                        androidx.compose
+                                                                                                                .ui
+                                                                                                                .geometry
+                                                                                                                .Offset(
+                                                                                                                        x =
+                                                                                                                                (Math.cos(
+                                                                                                                                                Math.toRadians(
+                                                                                                                                                        rotation.toDouble()
+                                                                                                                                                )
+                                                                                                                                        )
+                                                                                                                                        .toFloat() +
+                                                                                                                                        1f) /
+                                                                                                                                        2f *
+                                                                                                                                        1000f,
+                                                                                                                        y =
+                                                                                                                                (Math.sin(
+                                                                                                                                                Math.toRadians(
+                                                                                                                                                        rotation.toDouble()
+                                                                                                                                                )
+                                                                                                                                        )
+                                                                                                                                        .toFloat() +
+                                                                                                                                        1f) /
+                                                                                                                                        2f *
+                                                                                                                                        1000f
+                                                                                                                ),
+                                                                                                end =
+                                                                                                        androidx.compose
+                                                                                                                .ui
+                                                                                                                .geometry
+                                                                                                                .Offset(
+                                                                                                                        x =
+                                                                                                                                (Math.cos(
+                                                                                                                                                Math.toRadians(
+                                                                                                                                                        rotation.toDouble() +
+                                                                                                                                                                180
+                                                                                                                                                )
+                                                                                                                                        )
+                                                                                                                                        .toFloat() +
+                                                                                                                                        1f) /
+                                                                                                                                        2f *
+                                                                                                                                        1000f,
+                                                                                                                        y =
+                                                                                                                                (Math.sin(
+                                                                                                                                                Math.toRadians(
+                                                                                                                                                        rotation.toDouble() +
+                                                                                                                                                                180
+                                                                                                                                                )
+                                                                                                                                        )
+                                                                                                                                        .toFloat() +
+                                                                                                                                        1f) /
+                                                                                                                                        2f *
+                                                                                                                                        1000f
+                                                                                                                )
+                                                                                        )
                                                                         } else {
                                                                                 androidx.compose.ui
                                                                                         .graphics
@@ -602,7 +618,8 @@ fun SearchScreen(
                                                                         }
                                                                 ),
                                                         onClick = {
-                                                                if (!aiExpanded) aiExpanded = true
+                                                                if (!aiExpanded && !isGlowRotating)
+                                                                        isGlowRotating = true
                                                         }
                                                 ) {
                                                         Box(modifier = Modifier.fillMaxSize()) {
@@ -642,7 +659,7 @@ fun SearchScreen(
                                                                                         leadingIcon = {
                                                                                                 Icon(
                                                                                                         Icons.Default
-                                                                                                                .Search,
+                                                                                                                .AutoAwesome,
                                                                                                         contentDescription =
                                                                                                                 "AI Search",
                                                                                                         tint =
@@ -657,7 +674,7 @@ fun SearchScreen(
                                                                                         },
                                                                                         placeholder = {
                                                                                                 Text(
-                                                                                                        "Talk to YouTube",
+                                                                                                        "Talk to Sphere",
                                                                                                         color =
                                                                                                                 MaterialTheme
                                                                                                                         .colorScheme
@@ -714,9 +731,7 @@ fun SearchScreen(
                                                                                                                                         .colorScheme
                                                                                                                                         .onSurfaceVariant,
                                                                                                                         modifier =
-                                                                                                                                Modifier.size(
-                                                                                                                                        18.dp
-                                                                                                                                )
+                                                                                                                                Modifier.size(18.dp)
                                                                                                                 )
                                                                                                         }
                                                                                                 }
@@ -730,9 +745,7 @@ fun SearchScreen(
                                                                                 Box(
                                                                                         modifier =
                                                                                                 Modifier.fillMaxSize(),
-                                                                                        contentAlignment =
-                                                                                                Alignment
-                                                                                                        .Center
+                                                                                        contentAlignment = Alignment.Center
                                                                                 ) {
                                                                                         Icon(
                                                                                                 Icons.Filled
