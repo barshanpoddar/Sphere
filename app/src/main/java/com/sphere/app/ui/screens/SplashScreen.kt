@@ -21,30 +21,32 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(onSplashFinished: () -> Unit) {
-    val scale = remember { Animatable(0f) }
+  val scale = remember { Animatable(0f) }
 
-    LaunchedEffect(key1 = true) {
-        scale.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(durationMillis = 1000)
-        )
-        delay(500) // Wait a bit
-        onSplashFinished()
-    }
+  LaunchedEffect(key1 = true) {
+    scale.animateTo(
+      targetValue = 1f,
+      animationSpec = tween(durationMillis = 1000),
+    )
+    delay(500) // Wait a bit
+    onSplashFinished()
+  }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.primary),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = Icons.Default.PlayCircleFilled,
-            contentDescription = "Logo",
-            modifier = Modifier
-                .size(120.dp)
-                .scale(scale.value),
-            tint = MaterialTheme.colorScheme.onPrimary
-        )
-    }
+  Box(
+    modifier =
+      Modifier
+        .fillMaxSize()
+        .background(MaterialTheme.colorScheme.primary),
+    contentAlignment = Alignment.Center,
+  ) {
+    Icon(
+      imageVector = Icons.Default.PlayCircleFilled,
+      contentDescription = "Logo",
+      modifier =
+        Modifier
+          .size(120.dp)
+          .scale(scale.value),
+      tint = MaterialTheme.colorScheme.onPrimary,
+    )
+  }
 }

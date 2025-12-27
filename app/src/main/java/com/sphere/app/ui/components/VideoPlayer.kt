@@ -17,44 +17,47 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 
-@OptIn(UnstableApi::class) 
+@OptIn(UnstableApi::class)
 @Composable
 fun VideoPlayer(
-    videoUrl: String,
-    modifier: Modifier = Modifier
+  videoUrl: String,
+  modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
+  val context = LocalContext.current
 
-    val exoPlayer = remember {
-        ExoPlayer.Builder(context).build().apply {
-            playWhenReady = false
-        }
+  val exoPlayer =
+    remember {
+      ExoPlayer.Builder(context).build().apply {
+        playWhenReady = false
+      }
     }
 
-    LaunchedEffect(videoUrl) {
-        val mediaItem = MediaItem.fromUri(videoUrl)
-        exoPlayer.setMediaItem(mediaItem)
-        exoPlayer.prepare()
-    }
+  LaunchedEffect(videoUrl) {
+    val mediaItem = MediaItem.fromUri(videoUrl)
+    exoPlayer.setMediaItem(mediaItem)
+    exoPlayer.prepare()
+  }
 
-    DisposableEffect(Unit) {
-        onDispose {
-            exoPlayer.release()
-        }
+  DisposableEffect(Unit) {
+    onDispose {
+      exoPlayer.release()
     }
+  }
 
-    AndroidView(
-        factory = {
-            PlayerView(context).apply {
-                player = exoPlayer
-                layoutParams = FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
-            }
-        },
-        modifier = modifier
-            .fillMaxWidth()
-            .aspectRatio(16 / 9f) 
-    )
+  AndroidView(
+    factory = {
+      PlayerView(context).apply {
+        player = exoPlayer
+        layoutParams =
+          FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT,
+          )
+      }
+    },
+    modifier =
+      modifier
+        .fillMaxWidth()
+        .aspectRatio(16 / 9f),
+  )
 }

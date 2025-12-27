@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 
 @Composable
 fun ExploreScreen() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Explore Page")
-    }
+  Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    Text("Explore Page")
+  }
 }

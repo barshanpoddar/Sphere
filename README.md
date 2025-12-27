@@ -49,6 +49,34 @@ A modern Android video streaming application built with Jetpack Compose, providi
    - Connect an Android device or start an emulator
    - Run → Run 'app' (Shift+F10)
 
+## Code Formatting
+
+This project uses ktlint with Flutter-like formatting rules:
+- **2-space indentation** (like Flutter/Dart)
+- 100 character line length
+- Consistent spacing and formatting
+- **Note**: Composable functions start with uppercase letters (Jetpack Compose convention), unlike regular Kotlin functions
+
+### Format Code
+```bash
+# Windows
+format_code.bat
+
+# Or manually
+./gradlew :app:formatCode
+```
+
+### Check Formatting
+```bash
+# Windows
+format_check.bat
+
+# Or manually
+./gradlew :app:checkCodeFormat
+```
+
+*Note: The formatter will show warnings about Composable function names starting with uppercase letters, but this is correct for Jetpack Compose. The build will succeed despite these warnings.*
+
 ## Project Structure
 
 ```

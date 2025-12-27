@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 
 @Composable
 fun MusicScreen() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Music Library")
-    }
+  Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    Text("Music Library")
+  }
 }

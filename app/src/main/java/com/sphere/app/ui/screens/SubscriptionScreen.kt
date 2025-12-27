@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 
 @Composable
 fun SubscriptionScreen() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Subscription Feed")
-    }
+  Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    Text("Subscription Feed")
+  }
 }
