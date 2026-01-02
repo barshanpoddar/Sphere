@@ -2,6 +2,7 @@ package com.sphere.app
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -41,107 +42,96 @@ fun SphereApp() {
   }
 
   val bottomNavItems =
-    listOf(
-      Screen.Home,
-      Screen.Explore,
-      Screen.Search,
-      Screen.Subscription,
-      Screen.Music,
-    )
+          listOf(
+                  Screen.Home,
+                  Screen.Explore,
+                  Screen.Search,
+                  Screen.Subscription,
+                  Screen.Music,
+          )
 
   // Hide BottomBar on Splash Screen and Player Screen
   val showBottomBar =
-    currentRoute != Screen.Splash.route && currentRoute?.startsWith("player") == false
+          currentRoute != Screen.Splash.route && currentRoute?.startsWith("player") == false
 
   Scaffold(
-    bottomBar = {
-      if (showBottomBar) {
-        NavigationBar {
-          bottomNavItems.forEach { screen ->
-            NavigationBarItem(
-              icon = { Icon(screen.icon!!, contentDescription = screen.title) },
-              label = { Text(screen.title) },
-              selected = currentRoute == screen.route,
-              onClick = {
-                if (screen.route == Screen.Search.route &&
-                  currentRoute == Screen.Search.route
-                ) {
-                  // Already on search screen, trigger focus
-                  searchFocusTrigger++
-                } else {
-                  navController.navigate(screen.route) {
-                    popUpTo(navController.graph.findStartDestination().id) {
-                      saveState = true
-                    }
-                    launchSingleTop = true
-                    restoreState = true
-                  }
+          contentWindowInsets = WindowInsets(0, 0, 0, 0),
+          bottomBar = {
+            if (showBottomBar) {
+              NavigationBar {
+                bottomNavItems.forEach { screen ->
+                  NavigationBarItem(
+                          icon = { Icon(screen.icon!!, contentDescription = screen.title) },
+                          label = { Text(screen.title) },
+                          selected = currentRoute == screen.route,
+                          onClick = {
+                            if (screen.route == Screen.Search.route &&
+                                            currentRoute == Screen.Search.route
+                            ) {
+                              // Already on search screen, trigger focus
+                              searchFocusTrigger++
+                            } else {
+                              navController.navigate(screen.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                  saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                              }
+                            }
+                          },
+                  )
                 }
-              },
-            )
-          }
-        }
-      }
-    },
+              }
+            }
+          },
   ) { innerPadding ->
     NavHost(
-      navController = navController,
-      startDestination = Screen.Splash.route,
-      modifier = Modifier.padding(innerPadding),
-      enterTransition = { EnterTransition.None },
-      exitTransition = { ExitTransition.None },
-      popEnterTransition = { EnterTransition.None },
-      popExitTransition = { ExitTransition.None },
+            navController = navController,
+            startDestination = Screen.Splash.route,
+            modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding()),
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None },
+            popEnterTransition = { EnterTransition.None },
+            popExitTransition = { ExitTransition.None },
     ) {
       composable(Screen.Splash.route) {
-        com.sphere.app.ui.screens.SplashScreen(onSplashFinished = {
-          navController.navigate(Screen.Home.route) {
-            popUpTo(Screen.Splash.route) { inclusive = true }
-          }
-        })
+        com.sphere.app.ui.screens.SplashScreen(
+                onSplashFinished = {
+                  navController.navigate(Screen.Home.route) {
+                    popUpTo(Screen.Splash.route) { inclusive = true }
+                  }
+                }
+        )
       }
       composable(Screen.Home.route) {
         com.sphere.app.ui.screens.HomeScreen(
-          onVideoClick = { videoUrl: String, title: String, channel: String ->
-            navController.navigate(Screen.Player.createRoute(videoUrl, title, channel))
-          },
-          onProfileClick = {
-            navController.navigate(Screen.Profile.route)
-          },
+                onVideoClick = { videoUrl: String, title: String, channel: String ->
+                  navController.navigate(Screen.Player.createRoute(videoUrl, title, channel))
+                },
+                onProfileClick = { navController.navigate(Screen.Profile.route) },
         )
       }
-      composable(Screen.Explore.route) {
-        com.sphere.app.ui.screens
-          .ExploreScreen()
-      }
+      composable(Screen.Explore.route) { com.sphere.app.ui.screens.ExploreScreen() }
       composable(Screen.Search.route) {
         SearchScreen(
-          onVideoClick = { videoUrl: String, title: String, channel: String ->
-            navController.navigate(Screen.Player.createRoute(videoUrl, title, channel))
-          },
-          focusTrigger = searchFocusTrigger,
+                onVideoClick = { videoUrl: String, title: String, channel: String ->
+                  navController.navigate(Screen.Player.createRoute(videoUrl, title, channel))
+                },
+                focusTrigger = searchFocusTrigger,
         )
       }
-      composable(Screen.Subscription.route) {
-        com.sphere.app.ui.screens
-          .SubscriptionScreen()
-      }
-      composable(Screen.Music.route) {
-        com.sphere.app.ui.screens
-          .MusicScreen()
-      }
-      composable(Screen.Profile.route) {
-        com.sphere.app.ui.screens
-          .ProfileScreen()
-      }
+      composable(Screen.Subscription.route) { com.sphere.app.ui.screens.SubscriptionScreen() }
+      composable(Screen.Music.route) { com.sphere.app.ui.screens.MusicScreen() }
+      composable(Screen.Profile.route) { com.sphere.app.ui.screens.ProfileScreen() }
       composable(
-        route = Screen.Player.route,
-        arguments =
-          listOf(
-            navArgument("videoUrl") { type = NavType.StringType },
-            navArgument("title") { type = NavType.StringType },
-            navArgument("channel") { type = NavType.StringType },
-          ),
+              route = Screen.Player.route,
+              arguments =
+                      listOf(
+                              navArgument("videoUrl") { type = NavType.StringType },
+                              navArgument("title") { type = NavType.StringType },
+                              navArgument("channel") { type = NavType.StringType },
+                      ),
       ) { backStackEntry ->
         val videoUrl = backStackEntry.arguments?.getString("videoUrl") ?: ""
         val title = backStackEntry.arguments?.getString("title") ?: ""
@@ -150,18 +140,16 @@ fun SphereApp() {
         // Decode arguments if strictly necessary, but compose often handles basic string args well.
         // However, URLs usually need decoding if they were encoded.
         val decodedUrl =
-          try {
-            URLDecoder.decode(videoUrl, StandardCharsets.UTF_8.toString())
-          } catch (
-            _: Exception,
-          ) {
-            videoUrl
-          }
+                try {
+                  URLDecoder.decode(videoUrl, StandardCharsets.UTF_8.toString())
+                } catch (_: Exception,) {
+                  videoUrl
+                }
 
         com.sphere.app.ui.screens.PlayerScreen(
-          videoUrl = decodedUrl,
-          title = title,
-          channelName = channel,
+                videoUrl = decodedUrl,
+                title = title,
+                channelName = channel,
         )
       }
     }

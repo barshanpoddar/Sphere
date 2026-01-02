@@ -11,6 +11,8 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.toArgb
+import android.graphics.Color
+import android.view.WindowManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
@@ -50,8 +52,13 @@ fun SphereTheme(
     SideEffect {
       val window = (view.context as Activity).window
       @Suppress("DEPRECATION")
-      window.statusBarColor = colorScheme.primary.toArgb()
-      WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+      // Draw the app behind system bars so the app bar can extend into the status bar area
+      WindowCompat.setDecorFitsSystemWindows(window, false)
+      // Ensure a non-translucent base and set the status bar to the surface color
+      window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+      window.statusBarColor = colorScheme.surface.toArgb()
+      // Use dark icons on light theme, light icons on dark theme.
+      WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
     }
   }
 

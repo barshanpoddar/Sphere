@@ -40,6 +40,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.statusBarsPadding
+// window inset helpers
 import coil.compose.AsyncImage
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -54,36 +56,43 @@ fun HomeScreen(
 
   Scaffold(
     topBar = {
-      TopAppBar(
-        title = {
-            Text(
-              text = "Sphere",
-              style =
-                MaterialTheme.typography.titleLarge.copy(
-                  fontWeight = FontWeight.Bold,
-                ),
-            )
-        },
-        actions = {
-          IconButton(onClick = onProfileClick) {
-            Icon(
-              imageVector = Icons.Default.AccountCircle,
-              contentDescription = "You",
-              modifier = Modifier.size(32.dp),
-            )
-          }
-        },
-        colors =
-          TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            titleContentColor = MaterialTheme.colorScheme.onSurface,
-            actionIconContentColor = MaterialTheme.colorScheme.onSurface,
-          ),
-      )
+      Surface(
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 0.dp,
+        modifier = Modifier.fillMaxWidth(),
+      ) {
+        Column {
+          TopAppBar(
+            modifier = Modifier.fillMaxWidth().statusBarsPadding().height(56.dp),
+            title = {
+              Text(
+                text = "Sphere",
+                modifier = Modifier.padding(start = 16.dp),
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+              )
+            },
+            actions = {
+              IconButton(onClick = onProfileClick) {
+                Icon(
+                  imageVector = Icons.Default.AccountCircle,
+                  contentDescription = "You",
+                  modifier = Modifier.size(32.dp),
+                )
+              }
+            },
+            colors =
+            TopAppBarDefaults.topAppBarColors(
+              containerColor = Color.Transparent,
+              titleContentColor = MaterialTheme.colorScheme.onSurface,
+              actionIconContentColor = MaterialTheme.colorScheme.onSurface,
+            ),
+          )
+        }
+      }
     },
   ) { paddingValues ->
     LazyColumn(
-      modifier = Modifier.fillMaxSize().padding(paddingValues.copy(top = 0.dp)),
+      modifier = Modifier.fillMaxSize().padding(paddingValues),
       contentPadding = PaddingValues(bottom = 16.dp),
       verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {

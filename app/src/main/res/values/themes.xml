@@ -2,6 +2,7 @@
     <!-- Base application theme. -->
     <!-- Base application theme. -->
     <style name="Theme.Sphere" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Use a concrete opaque color so the status bar is visible on all devices -->
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
