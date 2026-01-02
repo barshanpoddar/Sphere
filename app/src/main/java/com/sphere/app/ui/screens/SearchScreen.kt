@@ -81,8 +81,8 @@ import java.nio.charset.StandardCharsets
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
-  onVideoClick: (String, String, String) -> Unit = { _, _, _ -> },
-  focusTrigger: Int = 0,
+        onVideoClick: (String, String, String) -> Unit = { _, _, _ -> },
+        focusTrigger: Int = 0,
 ) {
   var searchQuery by remember { mutableStateOf("") }
   val focusRequester = remember { FocusRequester() }
@@ -93,38 +93,37 @@ fun SearchScreen(
 
   val horizontalPaddingRaw = (screenWidthDp * 0.02f).dp
   val horizontalPadding =
-    when {
-      horizontalPaddingRaw < 2.dp -> 2.dp
-      horizontalPaddingRaw > 24.dp -> 24.dp
-      else -> horizontalPaddingRaw
-    }
+          when {
+            horizontalPaddingRaw < 2.dp -> 2.dp
+            horizontalPaddingRaw > 24.dp -> 24.dp
+            else -> horizontalPaddingRaw
+          }
 
   val verticalPaddingRaw = (screenHeightDp * 0.005f).dp
   val verticalPadding =
-    when {
-      verticalPaddingRaw < 2.dp -> 2.dp
-      verticalPaddingRaw > 8.dp -> 8.dp
-      else -> verticalPaddingRaw
-    }
+          when {
+            verticalPaddingRaw < 2.dp -> 2.dp
+            verticalPaddingRaw > 8.dp -> 8.dp
+            else -> verticalPaddingRaw
+          }
 
   val searchBarHeightRaw = (screenHeightDp * 0.06f).dp
   val searchBarHeight =
-    when {
-      searchBarHeightRaw < 44.dp -> 44.dp
-      searchBarHeightRaw > 64.dp -> 64.dp
-      else -> searchBarHeightRaw
-    }
+          when {
+            searchBarHeightRaw < 44.dp -> 44.dp
+            searchBarHeightRaw > 64.dp -> 64.dp
+            else -> searchBarHeightRaw
+          }
 
   val searchBarGap = 12.dp
   val widthBuffer = 32.dp
   val expandedBarWidth =
-    (
-      screenWidthDp -
-        (horizontalPadding.value * 2) -
-        searchBarHeight.value -
-        searchBarGap.value -
-        widthBuffer.value
-    ).dp
+          (screenWidthDp -
+                          (horizontalPadding.value * 2) -
+                          searchBarHeight.value -
+                          searchBarGap.value -
+                          widthBuffer.value)
+                  .dp
 
   var aiExpanded by remember { mutableStateOf(false) }
 
@@ -145,28 +144,24 @@ fun SearchScreen(
 
   // Animation state for glow rotation
   var isGlowRotating by remember { mutableStateOf(false) }
-  val glowRotationAnimatable =
-    remember {
-      androidx.compose.animation.core
-        .Animatable(0f)
-    }
+  val glowRotationAnimatable = remember { androidx.compose.animation.core.Animatable(0f) }
 
   // Glow fade-out animation
   var shouldShowGlow by remember { mutableStateOf(false) }
   val glowAlpha by
-    androidx.compose.animation.core.animateFloatAsState(
-      targetValue = if (shouldShowGlow) 1f else 0f,
-      animationSpec = tween(durationMillis = 1200),
-      label = "glowAlpha",
-    )
+          androidx.compose.animation.core.animateFloatAsState(
+                  targetValue = if (shouldShowGlow) 1f else 0f,
+                  animationSpec = tween(durationMillis = 1200),
+                  label = "glowAlpha",
+          )
 
   LaunchedEffect(isGlowRotating) {
     if (isGlowRotating) {
       shouldShowGlow = true
       glowRotationAnimatable.snapTo(0f)
       glowRotationAnimatable.animateTo(
-        targetValue = 360f,
-        animationSpec = tween(durationMillis = 800),
+              targetValue = 360f,
+              animationSpec = tween(durationMillis = 800),
       )
       isGlowRotating = false
       aiExpanded = true
@@ -182,673 +177,518 @@ fun SearchScreen(
   }
 
   Scaffold(
-    topBar = {
-      TopAppBar(
-        title = {
-          val pillShape = RoundedCornerShape(50.dp)
+          topBar = {
+            TopAppBar(
+                    title = {
+                      val pillShape = RoundedCornerShape(50.dp)
 
-          // Animate search bar width
-          val searchBarWidth by
-            animateDpAsState(
-              targetValue =
-                if (!aiExpanded) {
-                  expandedBarWidth
-                } else {
-                  searchBarHeight
-                },
-              animationSpec =
-                spring(
-                  dampingRatio =
-                    Spring.DampingRatioLowBouncy,
-                  stiffness = 50f,
-                ),
-              label = "searchBarWidth",
-            )
+                      // Animate search bar width
+                      val searchBarWidth by
+                              animateDpAsState(
+                                      targetValue =
+                                              if (!aiExpanded) {
+                                                expandedBarWidth
+                                              } else {
+                                                searchBarHeight
+                                              },
+                                      animationSpec =
+                                              spring(
+                                                      dampingRatio = Spring.DampingRatioLowBouncy,
+                                                      stiffness = 50f,
+                                              ),
+                                      label = "searchBarWidth",
+                              )
 
-          // Animate AI search bar width
-          var isAiFullyExpanded by remember { mutableStateOf(false) }
-          val aiBarWidth by
-            animateDpAsState(
-              targetValue =
-                if (aiExpanded) {
-                  expandedBarWidth
-                } else {
-                  searchBarHeight
-                },
-              animationSpec =
-                spring(
-                  dampingRatio =
-                    Spring.DampingRatioLowBouncy,
-                  stiffness = 50f,
-                ),
-              label = "aiBarWidth",
-              finishedListener = { finalWidth ->
-                isAiFullyExpanded =
-                  aiExpanded &&
-                  finalWidth >=
-                  expandedBarWidth
-              },
-            )
+                      // Animate AI search bar width
+                      var isAiFullyExpanded by remember { mutableStateOf(false) }
+                      val aiBarWidth by
+                              animateDpAsState(
+                                      targetValue =
+                                              if (aiExpanded) {
+                                                expandedBarWidth
+                                              } else {
+                                                searchBarHeight
+                                              },
+                                      animationSpec =
+                                              spring(
+                                                      dampingRatio = Spring.DampingRatioLowBouncy,
+                                                      stiffness = 50f,
+                                              ),
+                                      label = "aiBarWidth",
+                                      finishedListener = { finalWidth ->
+                                        isAiFullyExpanded =
+                                                aiExpanded && finalWidth >= expandedBarWidth
+                                      },
+                              )
 
-          // Rotation animation for the gradient border
-          val infiniteTransition =
-            rememberInfiniteTransition(label = "borderRotation")
-          val infiniteRotation by
-            infiniteTransition.animateFloat(
-              initialValue = 0f,
-              targetValue = 360f,
-              animationSpec =
-                infiniteRepeatable(
-                  animation = tween(2000),
-                  repeatMode =
-                    RepeatMode.Restart,
-                ),
-              label = "rotation",
-            )
+                      // Rotation animation for the gradient border
+                      val infiniteTransition = rememberInfiniteTransition(label = "borderRotation")
+                      val infiniteRotation by
+                              infiniteTransition.animateFloat(
+                                      initialValue = 0f,
+                                      targetValue = 360f,
+                                      animationSpec =
+                                              infiniteRepeatable(
+                                                      animation = tween(2000),
+                                                      repeatMode = RepeatMode.Restart,
+                                              ),
+                                      label = "rotation",
+                              )
 
-          val rotation =
-            if (isGlowRotating) {
-              glowRotationAnimatable.value
-            } else {
-              infiniteRotation
-            }
+                      val rotation =
+                              if (isGlowRotating) {
+                                glowRotationAnimatable.value
+                              } else {
+                                infiniteRotation
+                              }
 
-          Row(
-            modifier =
-              Modifier
-                .fillMaxWidth()
-                .padding(
-                  start = horizontalPadding,
-                  top = verticalPadding,
-                  end = horizontalPadding,
-                  bottom = verticalPadding,
-                ),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement =
-              Arrangement.spacedBy(searchBarGap),
-          ) {
-            // Regular Search Bar / Button
-            Surface(
-              modifier =
-                Modifier
-                  .width(searchBarWidth)
-                  .widthIn(
-                    min =
-                    searchBarHeight,
-                  ).height(searchBarHeight)
-                  .shadow(
-                    if (!aiExpanded) {
-                      6.dp
-                    } else {
-                      4.dp
-                    },
-                    if (!aiExpanded) {
-                      pillShape
-                    } else {
-                      CircleShape
-                    },
-                  ),
-              shape =
-                if (!aiExpanded) {
-                  pillShape
-                } else {
-                  CircleShape
-                },
-              color = MaterialTheme.colorScheme.surface,
-              tonalElevation =
-                if (!aiExpanded) 6.dp else 4.dp,
-              border =
-                BorderStroke(
-                  1.dp,
-                  MaterialTheme.colorScheme
-                    .surfaceVariant,
-                ),
-              onClick = {
-                if (aiExpanded) aiExpanded = false
-              },
-            ) {
-              Box(modifier = Modifier.fillMaxSize()) {
-                AnimatedContent(
-                  targetState = aiExpanded,
-                  transitionSpec = {
-                    fadeIn(
-                      animationSpec =
-                        tween(
-                          durationMillis =
-                          500,
-                          delayMillis =
-                          150,
-                        ),
-                    ) togetherWith
-                      fadeOut(
-                        animationSpec =
-                          tween(
-                            durationMillis =
-                            250,
-                          ),
-                      )
-                  },
-                  label = "searchBarContent",
-                ) { isAiExpanded ->
-                  if (!isAiExpanded) {
-                    // Full
-                    // Search
-                    // Bar
-                    TextField(
-                      value =
-                      searchQuery,
-                      onValueChange = {
-                        searchQuery =
-                          it
-                      },
-                      leadingIcon = {
-                        Icon(
-                          Icons.Default
-                            .Search,
-                          contentDescription =
-                            "Search",
-                          tint =
-                            MaterialTheme
-                              .colorScheme
-                              .onSurfaceVariant,
-                          modifier =
-                            Modifier
-                              .size(
-                                20
-                                  .dp,
-                              ),
-                        )
-                      },
-                      placeholder = {
-                        Text(
-                          "Search",
-                          color =
-                            MaterialTheme
-                              .colorScheme
-                              .onSurfaceVariant,
-                        )
-                      },
-                      modifier =
-                        Modifier
-                          .fillMaxSize()
-                          .clip(
-                            pillShape,
-                          ).padding(
-                            horizontal =
-                              6
-                                .dp,
-                          ).focusRequester(
-                            focusRequester,
-                          ),
-                      colors =
-                        TextFieldDefaults
-                          .colors(
-                            focusedContainerColor =
-                              Color.Transparent,
-                            unfocusedContainerColor =
-                              Color.Transparent,
-                            disabledContainerColor =
-                              Color.Transparent,
-                            focusedIndicatorColor =
-                              Color.Transparent,
-                            unfocusedIndicatorColor =
-                              Color.Transparent,
-                            disabledIndicatorColor =
-                              Color.Transparent,
-                          ),
-                      singleLine =
-                      true,
-                      trailingIcon = {
-                        if (searchQuery
-                            .isNotEmpty()
+                      Row(
+                              modifier =
+                                      Modifier.fillMaxWidth()
+                                              .padding(
+                                                      start = horizontalPadding,
+                                                      top = verticalPadding,
+                                                      end = horizontalPadding,
+                                                      bottom = verticalPadding,
+                                              ),
+                              verticalAlignment = Alignment.CenterVertically,
+                              horizontalArrangement = Arrangement.spacedBy(searchBarGap),
+                      ) {
+                        // Regular Search Bar / Button
+                        Surface(
+                                modifier =
+                                        Modifier.width(searchBarWidth)
+                                                .widthIn(
+                                                        min = searchBarHeight,
+                                                )
+                                                .height(searchBarHeight)
+                                                .shadow(
+                                                        if (!aiExpanded) {
+                                                          6.dp
+                                                        } else {
+                                                          4.dp
+                                                        },
+                                                        if (!aiExpanded) {
+                                                          pillShape
+                                                        } else {
+                                                          CircleShape
+                                                        },
+                                                ),
+                                shape =
+                                        if (!aiExpanded) {
+                                          pillShape
+                                        } else {
+                                          CircleShape
+                                        },
+                                color = MaterialTheme.colorScheme.surface,
+                                tonalElevation = if (!aiExpanded) 6.dp else 4.dp,
+                                border =
+                                        BorderStroke(
+                                                1.dp,
+                                                MaterialTheme.colorScheme.surfaceVariant,
+                                        ),
+                                onClick = { if (aiExpanded) aiExpanded = false },
                         ) {
-                          IconButton(
-                            onClick = {
-                              searchQuery =
-                                ""
-                            },
-                          ) {
-                            Icon(
-                              Icons.Default
-                                .Clear,
-                              contentDescription =
-                                "Clear",
-                              tint =
-                                MaterialTheme
-                                  .colorScheme
-                                  .onSurfaceVariant,
-                              modifier =
-                                Modifier
-                                  .size(
-                                    18
-                                      .dp,
-                                  ),
-                            )
-                          }
-                        } else {
-                          IconButton(
-                            onClick = {
-                              // voice search
-                            },
-                          ) {
-                            Icon(
-                              Icons.Filled
-                                .Mic,
-                              contentDescription =
-                                "Voice search",
-                              tint =
-                                MaterialTheme
-                                  .colorScheme
-                                  .onSurfaceVariant,
-                              modifier =
-                                Modifier
-                                  .size(
-                                    18
-                                      .dp,
-                                  ),
-                            )
+                          Box(modifier = Modifier.fillMaxSize()) {
+                            AnimatedContent(
+                                    targetState = aiExpanded,
+                                    transitionSpec = {
+                                      fadeIn(
+                                              animationSpec =
+                                                      tween(
+                                                              durationMillis = 500,
+                                                              delayMillis = 150,
+                                                      ),
+                                      ) togetherWith
+                                              fadeOut(
+                                                      animationSpec =
+                                                              tween(
+                                                                      durationMillis = 250,
+                                                              ),
+                                              )
+                                    },
+                                    label = "searchBarContent",
+                            ) { isAiExpanded ->
+                              if (!isAiExpanded) {
+                                // Full
+                                // Search
+                                // Bar
+                                TextField(
+                                        value = searchQuery,
+                                        onValueChange = { searchQuery = it },
+                                        leadingIcon = {
+                                          Icon(
+                                                  Icons.Default.Search,
+                                                  contentDescription = "Search",
+                                                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                  modifier =
+                                                          Modifier.size(
+                                                                  20.dp,
+                                                          ),
+                                          )
+                                        },
+                                        placeholder = {
+                                          Text(
+                                                  "Search",
+                                                  color =
+                                                          MaterialTheme.colorScheme
+                                                                  .onSurfaceVariant,
+                                          )
+                                        },
+                                        modifier =
+                                                Modifier.fillMaxSize()
+                                                        .clip(
+                                                                pillShape,
+                                                        )
+                                                        .padding(
+                                                                horizontal = 6.dp,
+                                                        )
+                                                        .focusRequester(
+                                                                focusRequester,
+                                                        ),
+                                        colors =
+                                                TextFieldDefaults.colors(
+                                                        focusedContainerColor = Color.Transparent,
+                                                        unfocusedContainerColor = Color.Transparent,
+                                                        disabledContainerColor = Color.Transparent,
+                                                        focusedIndicatorColor = Color.Transparent,
+                                                        unfocusedIndicatorColor = Color.Transparent,
+                                                        disabledIndicatorColor = Color.Transparent,
+                                                ),
+                                        singleLine = true,
+                                        trailingIcon = {
+                                          if (searchQuery.isNotEmpty()) {
+                                            IconButton(
+                                                    onClick = { searchQuery = "" },
+                                            ) {
+                                              Icon(
+                                                      Icons.Default.Clear,
+                                                      contentDescription = "Clear",
+                                                      tint =
+                                                              MaterialTheme.colorScheme
+                                                                      .onSurfaceVariant,
+                                                      modifier =
+                                                              Modifier.size(
+                                                                      18.dp,
+                                                              ),
+                                              )
+                                            }
+                                          } else {
+                                            IconButton(
+                                                    onClick = {
+                                                      // voice search
+                                                    },
+                                            ) {
+                                              Icon(
+                                                      Icons.Filled.Mic,
+                                                      contentDescription = "Voice search",
+                                                      tint =
+                                                              MaterialTheme.colorScheme
+                                                                      .onSurfaceVariant,
+                                                      modifier =
+                                                              Modifier.size(
+                                                                      18.dp,
+                                                              ),
+                                              )
+                                            }
+                                          }
+                                        },
+                                )
+                              } else {
+                                // Collapsed
+                                // Search
+                                // Button
+                                // Icon
+                                Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center,
+                                ) {
+                                  Icon(
+                                          Icons.Default.Search,
+                                          contentDescription = "Switch to search",
+                                          tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                          modifier =
+                                                  Modifier.size(
+                                                          20.dp,
+                                                  ),
+                                  )
+                                }
+                              }
+                            }
                           }
                         }
-                      },
-                    )
-                  } else {
-                    // Collapsed
-                    // Search
-                    // Button
-                    // Icon
-                    Box(
-                      modifier =
-                        Modifier
-                          .fillMaxSize(),
-                      contentAlignment =
-                        Alignment
-                          .Center,
-                    ) {
-                      Icon(
-                        Icons.Default
-                          .Search,
-                        contentDescription =
-                          "Switch to search",
-                        tint =
-                          MaterialTheme
-                            .colorScheme
-                            .onSurfaceVariant,
-                        modifier =
-                          Modifier
-                            .size(
-                              20
-                                .dp,
-                            ),
-                      )
-                    }
-                  }
-                }
-              }
-            }
 
-            // AI Search Bar / Button
-            val aiPillShape = RoundedCornerShape(50.dp)
-            Surface(
-              modifier =
-                Modifier
-                  .width(aiBarWidth)
-                  .widthIn(
-                    min =
-                    searchBarHeight,
-                  ).height(searchBarHeight)
-                  .shadow(
-                    if (aiExpanded) {
-                      6.dp
-                    } else {
-                      4.dp
-                    },
-                    if (aiExpanded) {
-                      aiPillShape
-                    } else {
-                      CircleShape
-                    },
-                  ).drawBehind {
-                    if (glowAlpha > 0f
-                    ) {
-                      val glowColor =
-                        Color(
-                          0xFF7C4DFF,
-                        ).copy(
-                          alpha =
-                            0.4f *
-                              glowAlpha,
-                        )
-                      drawIntoCanvas { canvas ->
-                        val frameworkPaint =
-                          glowPaint
-                            .asFrameworkPaint()
-                        if (frameworkPaint
-                            .maskFilter ==
-                          null
+                        // AI Search Bar / Button
+                        val aiPillShape = RoundedCornerShape(50.dp)
+                        Surface(
+                                modifier =
+                                        Modifier.width(aiBarWidth)
+                                                .widthIn(
+                                                        min = searchBarHeight,
+                                                )
+                                                .height(searchBarHeight)
+                                                .shadow(
+                                                        if (aiExpanded) {
+                                                          6.dp
+                                                        } else {
+                                                          4.dp
+                                                        },
+                                                        if (aiExpanded) {
+                                                          aiPillShape
+                                                        } else {
+                                                          CircleShape
+                                                        },
+                                                )
+                                                .drawBehind {
+                                                  if (glowAlpha > 0f) {
+                                                    val glowColor =
+                                                            Color(
+                                                                            0xFF7C4DFF,
+                                                                    )
+                                                                    .copy(
+                                                                            alpha =
+                                                                                    0.4f *
+                                                                                            glowAlpha,
+                                                                    )
+                                                    drawIntoCanvas { canvas ->
+                                                      val frameworkPaint =
+                                                              glowPaint.asFrameworkPaint()
+                                                      if (frameworkPaint.maskFilter == null) {
+                                                        frameworkPaint.maskFilter = blurMaskFilter
+                                                      }
+                                                      frameworkPaint.color = glowColor.toArgb()
+
+                                                      val spread = 2.dp.toPx()
+                                                      canvas.nativeCanvas.drawRoundRect(
+                                                              -spread,
+                                                              -spread,
+                                                              size.width + spread,
+                                                              size.height + spread,
+                                                              50.dp.toPx(),
+                                                              50.dp.toPx(),
+                                                              frameworkPaint,
+                                                      )
+                                                    }
+                                                  }
+                                                },
+                                shape =
+                                        if (aiExpanded) {
+                                          aiPillShape
+                                        } else {
+                                          CircleShape
+                                        },
+                                color = MaterialTheme.colorScheme.surface,
+                                tonalElevation = if (aiExpanded) 6.dp else 4.dp,
+                                border =
+                                        BorderStroke(
+                                                if (glowAlpha > 0f) {
+                                                  2.dp
+                                                } else {
+                                                  1.dp
+                                                },
+                                                if (glowAlpha > 0f) {
+                                                  androidx.compose.ui.graphics.Brush.linearGradient(
+                                                          colors =
+                                                                  listOf(
+                                                                          Color(
+                                                                                  0xFFE040FB,
+                                                                          ),
+                                                                          Color(
+                                                                                  0xFF7C4DFF,
+                                                                          ),
+                                                                          Color(
+                                                                                  0xFF448AFF,
+                                                                          ),
+                                                                          Color(
+                                                                                  0xFF18FFFF,
+                                                                          ),
+                                                                          Color(
+                                                                                  0xFFE040FB,
+                                                                          ),
+                                                                  ),
+                                                          start =
+                                                                  androidx.compose.ui.geometry
+                                                                          .Offset(
+                                                                                  x =
+                                                                                          (Math.cos(
+                                                                                                          Math.toRadians(
+                                                                                                                  rotation.toDouble(),
+                                                                                                          ),
+                                                                                                  )
+                                                                                                  .toFloat() +
+                                                                                                  1f) /
+                                                                                                  2f *
+                                                                                                  1000f,
+                                                                                  y =
+                                                                                          (Math.sin(
+                                                                                                          Math.toRadians(
+                                                                                                                  rotation.toDouble(),
+                                                                                                          ),
+                                                                                                  )
+                                                                                                  .toFloat() +
+                                                                                                  1f) /
+                                                                                                  2f *
+                                                                                                  1000f,
+                                                                          ),
+                                                          end =
+                                                                  androidx.compose.ui.geometry
+                                                                          .Offset(
+                                                                                  x =
+                                                                                          (Math.cos(
+                                                                                                          Math.toRadians(
+                                                                                                                  rotation.toDouble() +
+                                                                                                                          180,
+                                                                                                          ),
+                                                                                                  )
+                                                                                                  .toFloat() +
+                                                                                                  1f) /
+                                                                                                  2f *
+                                                                                                  1000f,
+                                                                                  y =
+                                                                                          (Math.sin(
+                                                                                                          Math.toRadians(
+                                                                                                                  rotation.toDouble() +
+                                                                                                                          180,
+                                                                                                          ),
+                                                                                                  )
+                                                                                                  .toFloat() +
+                                                                                                  1f) /
+                                                                                                  2f *
+                                                                                                  1000f,
+                                                                          ),
+                                                  )
+                                                } else {
+                                                  androidx.compose.ui.graphics.SolidColor(
+                                                          MaterialTheme.colorScheme.surfaceVariant,
+                                                  )
+                                                },
+                                        ),
+                                onClick = {
+                                  if (!aiExpanded && !isGlowRotating) {
+                                    isGlowRotating = true
+                                  }
+                                },
                         ) {
-                          frameworkPaint
-                            .maskFilter =
-                            blurMaskFilter
+                          Box(modifier = Modifier.fillMaxSize()) {
+                            AnimatedContent(
+                                    targetState = aiExpanded,
+                                    transitionSpec = {
+                                      fadeIn(
+                                              animationSpec =
+                                                      tween(
+                                                              durationMillis = 500,
+                                                              delayMillis = 150,
+                                                      ),
+                                      ) togetherWith
+                                              fadeOut(
+                                                      animationSpec =
+                                                              tween(
+                                                                      durationMillis = 250,
+                                                              ),
+                                              )
+                                    },
+                                    label = "aiBarContent",
+                            ) { isAiExpanded ->
+                              if (isAiExpanded) {
+                                // Full AI
+                                // Search
+                                // Bar
+                                TextField(
+                                        value = aiSearchQuery,
+                                        onValueChange = { aiSearchQuery = it },
+                                        leadingIcon = {
+                                          Icon(
+                                                  Icons.Default.AutoAwesome,
+                                                  contentDescription = "AI Search",
+                                                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                  modifier =
+                                                          Modifier.size(
+                                                                  20.dp,
+                                                          ),
+                                          )
+                                        },
+                                        placeholder = {
+                                          Text(
+                                                  "Talk to Sphere",
+                                                  color =
+                                                          MaterialTheme.colorScheme
+                                                                  .onSurfaceVariant,
+                                          )
+                                        },
+                                        modifier =
+                                                Modifier.fillMaxSize()
+                                                        .clip(
+                                                                aiPillShape,
+                                                        )
+                                                        .padding(
+                                                                horizontal = 6.dp,
+                                                        )
+                                                        .focusRequester(
+                                                                aiFocusRequester,
+                                                        ),
+                                        colors =
+                                                TextFieldDefaults.colors(
+                                                        focusedContainerColor = Color.Transparent,
+                                                        unfocusedContainerColor = Color.Transparent,
+                                                        disabledContainerColor = Color.Transparent,
+                                                        focusedIndicatorColor = Color.Transparent,
+                                                        unfocusedIndicatorColor = Color.Transparent,
+                                                        disabledIndicatorColor = Color.Transparent,
+                                                ),
+                                        singleLine = true,
+                                        trailingIcon = {
+                                          if (aiSearchQuery.isNotEmpty()) {
+                                            IconButton(
+                                                    onClick = { aiSearchQuery = "" },
+                                            ) {
+                                              Icon(
+                                                      Icons.Default.Clear,
+                                                      contentDescription = "Clear",
+                                                      tint =
+                                                              MaterialTheme.colorScheme
+                                                                      .onSurfaceVariant,
+                                                      modifier =
+                                                              Modifier.size(
+                                                                      18.dp,
+                                                              ),
+                                              )
+                                            }
+                                          }
+                                        },
+                                )
+                              } else {
+                                // Collapsed
+                                // AI Search
+                                // Button
+                                // Icon
+                                Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center,
+                                ) {
+                                  Icon(
+                                          Icons.Filled.AutoAwesome,
+                                          contentDescription = "Switch to AI Search",
+                                          tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                          modifier =
+                                                  Modifier.size(
+                                                          18.dp,
+                                                  ),
+                                  )
+                                }
+                              }
+                            }
+                          }
                         }
-                        frameworkPaint
-                          .color =
-                          glowColor
-                            .toArgb()
-
-                        val spread =
-                          2
-                            .dp
-                            .toPx()
-                        canvas.nativeCanvas
-                          .drawRoundRect(
-                            -spread,
-                            -spread,
-                            size.width +
-                              spread,
-                            size.height +
-                              spread,
-                            50
-                              .dp
-                              .toPx(),
-                            50
-                              .dp
-                              .toPx(),
-                            frameworkPaint,
-                          )
                       }
-                    }
-                  },
-              shape =
-                if (aiExpanded) {
-                  aiPillShape
-                } else {
-                  CircleShape
-                },
-              color = MaterialTheme.colorScheme.surface,
-              tonalElevation =
-                if (aiExpanded) 6.dp else 4.dp,
-              border =
-                BorderStroke(
-                  if (glowAlpha > 0f) {
-                    2.dp
-                  } else {
-                    1.dp
-                  },
-                  if (glowAlpha > 0f) {
-                    androidx.compose.ui
-                      .graphics
-                      .Brush
-                      .linearGradient(
-                        colors =
-                          listOf(
-                            Color(
-                              0xFFE040FB,
+                    },
+                    actions = {},
+                    colors =
+                            TopAppBarDefaults.topAppBarColors(
+                                    containerColor = MaterialTheme.colorScheme.surface,
+                                    titleContentColor = MaterialTheme.colorScheme.onSurface,
                             ),
-                            Color(
-                              0xFF7C4DFF,
-                            ),
-                            Color(
-                              0xFF448AFF,
-                            ),
-                            Color(
-                              0xFF18FFFF,
-                            ),
-                            Color(
-                              0xFFE040FB,
-                            ),
-                          ),
-                        start =
-                          androidx.compose
-                            .ui
-                            .geometry
-                            .Offset(
-                              x =
-                                (
-                                  Math
-                                    .cos(
-                                      Math
-                                        .toRadians(
-                                          rotation
-                                            .toDouble(),
-                                        ),
-                                    ).toFloat() +
-                                    1f
-                                ) /
-                                  2f *
-                                  1000f,
-                              y =
-                                (
-                                  Math
-                                    .sin(
-                                      Math
-                                        .toRadians(
-                                          rotation
-                                            .toDouble(),
-                                        ),
-                                    ).toFloat() +
-                                    1f
-                                ) /
-                                  2f *
-                                  1000f,
-                            ),
-                        end =
-                          androidx.compose
-                            .ui
-                            .geometry
-                            .Offset(
-                              x =
-                                (
-                                  Math
-                                    .cos(
-                                      Math
-                                        .toRadians(
-                                          rotation.toDouble() +
-                                            180,
-                                        ),
-                                    ).toFloat() +
-                                    1f
-                                ) /
-                                  2f *
-                                  1000f,
-                              y =
-                                (
-                                  Math
-                                    .sin(
-                                      Math
-                                        .toRadians(
-                                          rotation.toDouble() +
-                                            180,
-                                        ),
-                                    ).toFloat() +
-                                    1f
-                                ) /
-                                  2f *
-                                  1000f,
-                            ),
-                      )
-                  } else {
-                    androidx.compose.ui
-                      .graphics
-                      .SolidColor(
-                        MaterialTheme
-                          .colorScheme
-                          .surfaceVariant,
-                      )
-                  },
-                ),
-              onClick = {
-                if (!aiExpanded && !isGlowRotating
-                ) {
-                  isGlowRotating = true
-                }
-              },
-            ) {
-              Box(modifier = Modifier.fillMaxSize()) {
-                AnimatedContent(
-                  targetState = aiExpanded,
-                  transitionSpec = {
-                    fadeIn(
-                      animationSpec =
-                        tween(
-                          durationMillis =
-                          500,
-                          delayMillis =
-                          150,
-                        ),
-                    ) togetherWith
-                      fadeOut(
-                        animationSpec =
-                          tween(
-                            durationMillis =
-                            250,
-                          ),
-                      )
-                  },
-                  label = "aiBarContent",
-                ) { isAiExpanded ->
-                  if (isAiExpanded) {
-                    // Full AI
-                    // Search
-                    // Bar
-                    TextField(
-                      value =
-                      aiSearchQuery,
-                      onValueChange = {
-                        aiSearchQuery =
-                          it
-                      },
-                      leadingIcon = {
-                        Icon(
-                          Icons.Default
-                            .AutoAwesome,
-                          contentDescription =
-                            "AI Search",
-                          tint =
-                            MaterialTheme
-                              .colorScheme
-                              .onSurfaceVariant,
-                          modifier =
-                            Modifier
-                              .size(
-                                20
-                                  .dp,
-                              ),
-                        )
-                      },
-                      placeholder = {
-                        Text(
-                          "Talk to Sphere",
-                          color =
-                            MaterialTheme
-                              .colorScheme
-                              .onSurfaceVariant,
-                        )
-                      },
-                      modifier =
-                        Modifier
-                          .fillMaxSize()
-                          .clip(
-                            aiPillShape,
-                          ).padding(
-                            horizontal =
-                              6
-                                .dp,
-                          ).focusRequester(
-                            aiFocusRequester,
-                          ),
-                      colors =
-                        TextFieldDefaults
-                          .colors(
-                            focusedContainerColor =
-                              Color.Transparent,
-                            unfocusedContainerColor =
-                              Color.Transparent,
-                            disabledContainerColor =
-                              Color.Transparent,
-                            focusedIndicatorColor =
-                              Color.Transparent,
-                            unfocusedIndicatorColor =
-                              Color.Transparent,
-                            disabledIndicatorColor =
-                              Color.Transparent,
-                          ),
-                      singleLine =
-                      true,
-                      trailingIcon = {
-                        if (aiSearchQuery
-                            .isNotEmpty()
-                        ) {
-                          IconButton(
-                            onClick = {
-                              aiSearchQuery =
-                                ""
-                            },
-                          ) {
-                            Icon(
-                              Icons.Default
-                                .Clear,
-                              contentDescription =
-                                "Clear",
-                              tint =
-                                MaterialTheme
-                                  .colorScheme
-                                  .onSurfaceVariant,
-                              modifier =
-                                Modifier
-                                  .size(
-                                    18
-                                      .dp,
-                                  ),
-                            )
-                          }
-                        }
-                      },
-                    )
-                  } else {
-                    // Collapsed
-                    // AI Search
-                    // Button
-                    // Icon
-                    Box(
-                      modifier =
-                        Modifier
-                          .fillMaxSize(),
-                      contentAlignment =
-                        Alignment
-                          .Center,
-                    ) {
-                      Icon(
-                        Icons.Filled
-                          .AutoAwesome,
-                        contentDescription =
-                          "Switch to AI Search",
-                        tint =
-                          MaterialTheme
-                            .colorScheme
-                            .onSurfaceVariant,
-                        modifier =
-                          Modifier
-                            .size(
-                              18
-                                .dp,
-                            ),
-                      )
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        actions = {},
-        colors =
-          TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            titleContentColor =
-              MaterialTheme.colorScheme.onSurface,
-          ),
-      )
-    },
+            )
+          },
   ) { paddingValues ->
     Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
       // Search Results or Placeholder
@@ -858,8 +698,8 @@ fun SearchScreen(
       } else {
         // Search results
         SearchResults(
-          searchQuery = searchQuery,
-          onVideoClick = onVideoClick,
+                searchQuery = searchQuery,
+                onVideoClick = onVideoClick,
         )
       }
     }
@@ -869,64 +709,63 @@ fun SearchScreen(
 @Composable
 fun SearchEmptyState() {
   Column(
-    modifier = Modifier.fillMaxSize().padding(24.dp),
-    horizontalAlignment = Alignment.CenterHorizontally,
-    verticalArrangement = Arrangement.Center,
+          modifier = Modifier.fillMaxSize().padding(24.dp),
+          horizontalAlignment = Alignment.CenterHorizontally,
+          verticalArrangement = Arrangement.Center,
   ) {
     Icon(
-      imageVector = Icons.Default.Search,
-      contentDescription = null,
-      modifier = Modifier.size(64.dp),
-      tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+            imageVector = Icons.Default.Search,
+            contentDescription = null,
+            modifier = Modifier.size(64.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
     )
     Spacer(modifier = Modifier.height(16.dp))
     Text(
-      text = "Search for videos",
-      style = MaterialTheme.typography.titleMedium,
-      color = MaterialTheme.colorScheme.onSurfaceVariant,
+            text = "Search for videos",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
     Spacer(modifier = Modifier.height(8.dp))
     Text(
-      text = "Start typing to find videos, channels, and playlists",
-      style = MaterialTheme.typography.bodyMedium,
-      color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+            text = "Start typing to find videos, channels, and playlists",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
     )
   }
 }
 
 @Composable
 fun SearchResults(
-  searchQuery: String,
-  onVideoClick: (String, String, String) -> Unit,
+        searchQuery: String,
+        onVideoClick: (String, String, String) -> Unit,
 ) {
-  val sampleVideoUrl =
-    "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+  val sampleVideoUrl = "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
 
   LazyColumn(
-    modifier = Modifier.fillMaxSize(),
-    contentPadding = PaddingValues(bottom = 16.dp),
-    verticalArrangement = Arrangement.spacedBy(16.dp),
+          modifier = Modifier.fillMaxSize(),
+          contentPadding = PaddingValues(bottom = 16.dp),
+          verticalArrangement = Arrangement.spacedBy(16.dp),
   ) {
     // Show search results
     items(15) { index ->
       SearchResultVideoItem(
-        title = "Search Result: $searchQuery - Video Title $index",
-        channelName = "Channel Name $index",
-        views = "${(100..999).random()}K views",
-        time = "${(1..11).random()} months ago",
-        duration = "${(1..10).random()}:${(10..59).random()}",
-        onClick = {
-          val encodedUrl =
-            URLEncoder.encode(
-              sampleVideoUrl,
-              StandardCharsets.UTF_8.toString(),
-            )
-          onVideoClick(
-            encodedUrl,
-            "Search Result: $searchQuery - Video $index",
-            "Channel Name $index",
-          )
-        },
+              title = "Search Result: $searchQuery - Video Title $index",
+              channelName = "Channel Name $index",
+              views = "${(100..999).random()}K views",
+              time = "${(1..11).random()} months ago",
+              duration = "${(1..10).random()}:${(10..59).random()}",
+              onClick = {
+                val encodedUrl =
+                        URLEncoder.encode(
+                                sampleVideoUrl,
+                                StandardCharsets.UTF_8.toString(),
+                        )
+                onVideoClick(
+                        encodedUrl,
+                        "Search Result: $searchQuery - Video $index",
+                        "Channel Name $index",
+                )
+              },
       )
     }
   }
@@ -934,12 +773,12 @@ fun SearchResults(
 
 @Composable
 fun SearchResultVideoItem(
-  title: String,
-  channelName: String,
-  views: String,
-  time: String,
-  duration: String,
-  onClick: () -> Unit,
+        title: String,
+        channelName: String,
+        views: String,
+        time: String,
+        duration: String,
+        onClick: () -> Unit,
 ) {
   val seed = title.hashCode()
   val thumbnailUrl = "https://picsum.photos/seed/$seed/640/360"
@@ -949,47 +788,43 @@ fun SearchResultVideoItem(
     // Thumbnail Section
     Box(contentAlignment = Alignment.BottomEnd) {
       AsyncImage(
-        model = thumbnailUrl,
-        contentDescription = "Thumbnail",
-        modifier = Modifier.fillMaxWidth().aspectRatio(16 / 9f),
-        contentScale = ContentScale.Crop,
-        placeholder = painterResource(android.R.drawable.ic_menu_gallery),
+              model = thumbnailUrl,
+              contentDescription = "Thumbnail",
+              modifier = Modifier.fillMaxWidth().aspectRatio(16 / 9f),
+              contentScale = ContentScale.Crop,
+              placeholder = painterResource(android.R.drawable.ic_menu_gallery),
       )
 
       // Duration Badge
       Surface(
-        color = Color.Black.copy(alpha = 0.8f),
-        shape = RoundedCornerShape(4.dp),
-        modifier = Modifier.padding(8.dp),
+              color = Color.Black.copy(alpha = 0.8f),
+              shape = RoundedCornerShape(4.dp),
+              modifier = Modifier.padding(8.dp),
       ) {
         Text(
-          text = duration,
-          color = Color.White,
-          style = MaterialTheme.typography.labelSmall,
-          modifier =
-            Modifier.padding(
-              horizontal = 4.dp,
-              vertical = 2.dp,
-            ),
+                text = duration,
+                color = Color.White,
+                style = MaterialTheme.typography.labelSmall,
+                modifier =
+                        Modifier.padding(
+                                horizontal = 4.dp,
+                                vertical = 2.dp,
+                        ),
         )
       }
     }
 
     // Details Section
     Row(
-      modifier = Modifier.fillMaxWidth().padding(12.dp),
-      verticalAlignment = Alignment.Top,
+            modifier = Modifier.fillMaxWidth().padding(12.dp),
+            verticalAlignment = Alignment.Top,
     ) {
       // Channel Avatar
       AsyncImage(
-        model = avatarUrl,
-        contentDescription = "Avatar",
-        modifier =
-          Modifier
-            .size(36.dp)
-            .clip(CircleShape)
-            .background(Color.Gray),
-        contentScale = ContentScale.Crop,
+              model = avatarUrl,
+              contentDescription = "Avatar",
+              modifier = Modifier.size(36.dp).clip(CircleShape).background(Color.Gray),
+              contentScale = ContentScale.Crop,
       )
 
       Spacer(modifier = Modifier.width(12.dp))
@@ -997,32 +832,32 @@ fun SearchResultVideoItem(
       // Text Info
       Column(modifier = Modifier.weight(1f)) {
         Text(
-          text = title,
-          style =
-            MaterialTheme.typography.bodyLarge.copy(
-              fontWeight = FontWeight.Medium,
-            ),
-          maxLines = 2,
-          overflow = TextOverflow.Ellipsis,
+                text = title,
+                style =
+                        MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.Medium,
+                        ),
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-          text = "$channelName • $views • $time",
-          style = MaterialTheme.typography.bodyMedium,
-          color = MaterialTheme.colorScheme.onSurfaceVariant,
-          maxLines = 1,
+                text = "$channelName • $views • $time",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
         )
       }
 
       // More Options Icon
       IconButton(
-        onClick = { /* Show options menu */ },
-        modifier = Modifier.size(24.dp),
+              onClick = { /* Show options menu */},
+              modifier = Modifier.size(24.dp),
       ) {
         Icon(
-          Icons.Default.MoreVert,
-          contentDescription = "More",
-          tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                Icons.Default.MoreVert,
+                contentDescription = "More",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
       }
     }

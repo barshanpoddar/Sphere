@@ -56,28 +56,6 @@ fun HomeScreen(
     topBar = {
       TopAppBar(
         title = {
-          Row(verticalAlignment = Alignment.CenterVertically) {
-            // YouTube-like Icon/Logo Placeholder (Red Play Button)
-            Surface(
-              shape = RoundedCornerShape(4.dp),
-              color = Color.Red,
-              modifier = Modifier.size(30.dp, 20.dp).padding(end = 4.dp),
-            ) {
-              Box(contentAlignment = Alignment.Center) {
-                Icon(
-                  painter =
-                    painterResource(
-                      id =
-                        android.R
-                          .drawable
-                          .ic_media_play,
-                    ),
-                  contentDescription = "Logo",
-                  tint = Color.White,
-                  modifier = Modifier.size(12.dp),
-                )
-              }
-            }
             Text(
               text = "Sphere",
               style =
@@ -85,7 +63,6 @@ fun HomeScreen(
                   fontWeight = FontWeight.Bold,
                 ),
             )
-          }
         },
         actions = {
           IconButton(onClick = onProfileClick) {
@@ -106,7 +83,7 @@ fun HomeScreen(
     },
   ) { paddingValues ->
     LazyColumn(
-      modifier = Modifier.fillMaxSize().padding(paddingValues),
+      modifier = Modifier.fillMaxSize().padding(paddingValues.copy(top = 0.dp)),
       contentPadding = PaddingValues(bottom = 16.dp),
       verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
